@@ -22,4 +22,14 @@
 - Updated build script to copy `gestHero.svg` into the extension and use it as the icon.
 - Added SVG-to-PNG conversion for icons with fallbacks to built-in PNGs.
 - Allowed JSON backups without strict MIME type in the options import control.
-- Added corner smoothing settings for rounded gesture turns (tolerance and min length).
+1- Added corner smoothing settings for rounded gesture turns (tolerance and min length).
+- Switched to segment-based direction commits to reduce duplicate tokens like UUURRR.
+- Added optional collapsing of repeated direction steps before matching gestures.
+- Tightened direction detection using axis-based thresholds inspired by existing gesture extensions.
+- Made repeated-direction collapsing mandatory to avoid U U / R R duplication.
+- Added debug logging toggle with export/clear controls for gesture analysis.
+- Made debug log export/clear work from the options page without needing the same active tab.
+- Auto-save debug toggle and show status when no events are collected.
+- Added diagonal-to-cardinal simplification for turn smoothing (e.g., U UR R -> U R).
+- Added project README with setup, usage, and debug notes.
+- Renamed generated extension folder to `GestHero` and updated README install steps.

@@ -50,6 +50,8 @@ BACKGROUND_JS = textwrap.dedent(
     """
     const DEFAULT_SEARCH_URL = "https://www.google.com/search?q=%s";
     const DEFAULT_ZOOM_STEP = 0.1;
+    const DEBUG_LIMIT = 500;
+    let debugEvents = [];
 
     const getInsertIndex = (tab) =>
       tab && typeof tab.index === "number" ? tab.index + 1 : undefined;
@@ -298,13 +300,38 @@ BACKGROUND_JS = textwrap.dedent(
       },
     };
 
-    chrome.runtime.onMessage.addListener((message, sender) => {
-      if (!message || message.type !== "executeAction") {
+    function addDebugEvent(event) {
+      if (!event) {
         return;
       }
-      const action = ACTIONS[message.action];
-      if (action) {
-        action(sender.tab, message);
+      debugEvents.push(event);
+      if (debugEvents.length > DEBUG_LIMIT) {
+        debugEvents.shift();
+      }
+    }
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (!message || !message.type) {
+        return;
+      }
+      if (message.type === "executeAction") {
+        const action = ACTIONS[message.action];
+        if (action) {
+          action(sender.tab, message);
+        }
+        return;
+      }
+      if (message.type === "debugEvent") {
+        addDebugEvent(message.event);
+        return;
+      }
+      if (message.type === "getDebugLog") {
+        sendResponse({ events: debugEvents });
+        return;
+      }
+      if (message.type === "clearDebugLog") {
+        debugEvents = [];
+        sendResponse({ ok: true });
       }
     });
     """
@@ -332,6 +359,7 @@ CONTENT_JS = textwrap.dedent(
       diagonalBias: 1.4,
       cornerMinLength: 18,
       cornerToleranceDeg: 35,
+      debugLog: false,
       trailColor: "#0078ff",
       trailWidth: 3,
       fadeDurationMs: 350,
@@ -361,6 +389,8 @@ CONTENT_JS = textwrap.dedent(
     let settings = { ...DEFAULT_SETTINGS };
     let gestureButton = BUTTON_MAP.right;
     let disabledSiteList = [];
+    let debugEvents = [];
+    const DEBUG_LIMIT = 500;
 
     function tokenizeSequence(value) {
       const raw = String(value || "").trim().toUpperCase();
@@ -376,11 +406,53 @@ CONTENT_JS = textwrap.dedent(
       return raw.split("");
     }
 
+    function collapseRepeats(tokens) {
+      const result = [];
+      let last = null;
+      tokens.forEach((token) => {
+        if (token && token !== last) {
+          result.push(token);
+          last = token;
+        }
+      });
+      return result;
+    }
+
+    function simplifyTokens(tokens) {
+      const collapsed = collapseRepeats(tokens);
+      const result = [];
+      for (let i = 0; i < collapsed.length; i += 1) {
+        const token = collapsed[i];
+        if (!token || token.length !== 2) {
+          result.push(token);
+          continue;
+        }
+        const prev = result[result.length - 1];
+        const next = collapsed[i + 1];
+        const prevCardinal = prev && prev.length === 1;
+        const nextCardinal = next && next.length === 1;
+        const matchesPrev = prevCardinal && token.includes(prev);
+        const matchesNext = nextCardinal && token.includes(next);
+        if (matchesPrev && matchesNext) {
+          continue;
+        }
+        if (matchesPrev && !nextCardinal) {
+          const replacement = token.replace(prev, "");
+          if (replacement.length === 1) {
+            result.push(replacement);
+            continue;
+          }
+        }
+        result.push(token);
+      }
+      return result;
+    }
+
     function normalizeSequence(sequence) {
-      return tokenizeSequence(sequence)
+      const tokens = tokenizeSequence(sequence)
         .map((token) => token.replace(/[^UDLR]/g, ""))
-        .filter((token) => VALID_TOKENS.has(token))
-        .join(" ");
+        .filter((token) => VALID_TOKENS.has(token));
+      return collapseRepeats(tokens).join(" ");
     }
 
     function formatSequence(tokens) {
@@ -431,6 +503,22 @@ CONTENT_JS = textwrap.dedent(
       updateCanvasStyle();
     }
 
+    function logDebug(type, data) {
+      if (!settings.debugLog) {
+        return;
+      }
+      const event = {
+        t: Date.now(),
+        type,
+        data: data || null,
+      };
+      debugEvents.push(event);
+      if (debugEvents.length > DEBUG_LIMIT) {
+        debugEvents.shift();
+      }
+      chrome.runtime.sendMessage({ type: "debugEvent", event });
+    }
+
     function loadSettings() {
       chrome.storage.sync.get(
         { gestures: DEFAULT_GESTURES, settings: DEFAULT_SETTINGS },
@@ -464,13 +552,13 @@ CONTENT_JS = textwrap.dedent(
     let lastDrawX = 0;
     let lastDrawY = 0;
     let lastMoveTime = 0;
+    let segmentStartX = 0;
+    let segmentStartY = 0;
     let gestureContext = { linkUrl: null, selectionText: "" };
     let canvas = null;
     let ctx = null;
     let labelEl = null;
     let labelTimeout = null;
-    let pendingDirection = null;
-    let pendingDistance = 0;
 
     function ensureLabel() {
       if (labelEl) {
@@ -592,7 +680,7 @@ CONTENT_JS = textwrap.dedent(
         return null;
       }
       if (!settings.diagonalEnabled) {
-        return absX > absY ? (dx > 0 ? "R" : "L") : dy > 0 ? "D" : "U";
+        return absX >= absY ? (dx > 0 ? "R" : "L") : dy > 0 ? "D" : "U";
       }
       const bias = Math.max(1, Number(settings.diagonalBias) || 1);
       const tolerance = Math.max(0, Number(settings.cornerToleranceDeg) || 0);
@@ -609,11 +697,10 @@ CONTENT_JS = textwrap.dedent(
       if (angle >= 90 - tolerance) {
         return dy > 0 ? "D" : "U";
       }
-      const ratio = absX / absY;
-      if (ratio > bias) {
+      if (absX >= absY * bias) {
         return dx > 0 ? "R" : "L";
       }
-      if (ratio < 1 / bias) {
+      if (absY >= absX * bias) {
         return dy > 0 ? "D" : "U";
       }
       if (dx > 0 && dy > 0) {
@@ -626,6 +713,19 @@ CONTENT_JS = textwrap.dedent(
         return "DL";
       }
       return "UL";
+    }
+
+    function getAxisDistance(direction, absX, absY) {
+      if (!direction) {
+        return 0;
+      }
+      if (direction === "L" || direction === "R") {
+        return absX;
+      }
+      if (direction === "U" || direction === "D") {
+        return absY;
+      }
+      return Math.min(absX, absY);
     }
 
     function findLinkHref(target) {
@@ -694,6 +794,9 @@ CONTENT_JS = textwrap.dedent(
       gestureUsed = false;
       directions = [];
       gestureContext = { linkUrl: null, selectionText: "" };
+      segmentStartX = 0;
+      segmentStartY = 0;
+      logDebug("cancel", null);
       fadeAndDestroyCanvas();
       hideLabel(0);
     }
@@ -747,8 +850,6 @@ CONTENT_JS = textwrap.dedent(
       gestureActive = true;
       gestureUsed = false;
       directions = [];
-      pendingDirection = null;
-      pendingDistance = 0;
       gestureContext = {
         linkUrl: findLinkHref(event.target),
         selectionText: getSelectionText(),
@@ -758,6 +859,15 @@ CONTENT_JS = textwrap.dedent(
       lastDrawX = lastX;
       lastDrawY = lastY;
       lastMoveTime = performance.now();
+      segmentStartX = lastX;
+      segmentStartY = lastY;
+      logDebug("down", {
+        button: event.button,
+        x: lastX,
+        y: lastY,
+        link: Boolean(gestureContext.linkUrl),
+        selection: Boolean(gestureContext.selectionText),
+      });
       createCanvas();
       if (settings.showDirection) {
         showLabel("");
@@ -771,6 +881,9 @@ CONTENT_JS = textwrap.dedent(
       const dx = event.clientX - lastX;
       const dy = event.clientY - lastY;
       const distance = Math.hypot(dx, dy);
+      const dxSegment = event.clientX - segmentStartX;
+      const dySegment = event.clientY - segmentStartY;
+      const segmentDistance = Math.hypot(dxSegment, dySegment);
       const now = performance.now();
       const deltaTime = now - lastMoveTime;
       const speed = deltaTime > 0 ? distance / (deltaTime / 1000) : 0;
@@ -780,32 +893,43 @@ CONTENT_JS = textwrap.dedent(
         return;
       }
       gestureUsed = true;
-      const direction = getDirection(dx, dy);
+      const absSegmentX = Math.abs(dxSegment);
+      const absSegmentY = Math.abs(dySegment);
+      const direction = getDirection(dxSegment, dySegment);
       if (direction) {
         const lastDirection = directions[directions.length - 1];
         const cornerMinLength =
           Number(settings.cornerMinLength) || DEFAULT_SETTINGS.cornerMinLength;
+        const axisDistance = getAxisDistance(
+          direction,
+          absSegmentX,
+          absSegmentY
+        );
+        let committed = false;
         if (!lastDirection) {
-          directions.push(direction);
-          pendingDirection = null;
-          pendingDistance = 0;
-        } else if (direction === lastDirection) {
-          pendingDirection = null;
-          pendingDistance = 0;
-        } else {
-          if (pendingDirection !== direction) {
-            pendingDirection = direction;
-            pendingDistance = 0;
+          if (axisDistance >= minDistance) {
+            directions.push(direction);
+            committed = true;
           }
-          pendingDistance += distance;
-          if (pendingDistance >= cornerMinLength) {
-            directions.push(pendingDirection);
-            pendingDirection = null;
-            pendingDistance = 0;
+        } else if (direction !== lastDirection) {
+          if (axisDistance >= cornerMinLength) {
+            directions.push(direction);
+            committed = true;
           }
         }
+        logDebug("eval", {
+          direction,
+          lastDirection: lastDirection || null,
+          axisDistance: Math.round(axisDistance),
+          segmentDistance: Math.round(segmentDistance),
+          committed,
+        });
+        if (committed) {
+          segmentStartX = event.clientX;
+          segmentStartY = event.clientY;
+        }
         if (settings.showDirection) {
-          showLabel(formatSequence(directions));
+          showLabel(formatSequence(simplifyTokens(directions)));
         }
       }
       if (ctx) {
@@ -833,15 +957,21 @@ CONTENT_JS = textwrap.dedent(
       }
       gestureActive = false;
       gestureContext.selectionText = getSelectionText();
-      const sequence = formatSequence(directions);
+      const simplifiedTokens = simplifyTokens(directions);
+      const sequence = formatSequence(simplifiedTokens);
       if (sequence) {
         handleGesture(sequence);
       }
+      logDebug("up", {
+        sequence,
+        raw: directions.slice(0),
+        simplified: simplifiedTokens,
+      });
       fadeAndDestroyCanvas();
       hideLabel(settings.testMode ? 1500 : 0);
       gestureContext = { linkUrl: null, selectionText: "" };
-      pendingDirection = null;
-      pendingDistance = 0;
+      segmentStartX = 0;
+      segmentStartY = 0;
       gestureUsed = false;
     }
 
@@ -1125,6 +1255,19 @@ OPTIONS_HTML = textwrap.dedent(
           </div>
         </div>
 
+        <div class="section">
+          <h2>Debug</h2>
+          <label>
+            Enable debug logging
+            <input type="checkbox" id="debug-log" />
+          </label>
+          <p class="hint">Debug toggle saves immediately.</p>
+          <div class="controls">
+            <button id="export-debug">Export Debug Log</button>
+            <button id="clear-debug">Clear Debug Log</button>
+          </div>
+        </div>
+
         <p class="hint">Hold the selected mouse button and drag to draw a gesture.</p>
         <p class="hint">Link actions require starting the gesture on a link.</p>
         <p class="hint">Selection actions require text selected.</p>
@@ -1157,6 +1300,7 @@ OPTIONS_JS = textwrap.dedent(
       diagonalBias: 1.4,
       cornerMinLength: 18,
       cornerToleranceDeg: 35,
+      debugLog: false,
       trailColor: "#0078ff",
       trailWidth: 3,
       fadeDurationMs: 350,
@@ -1262,12 +1406,15 @@ OPTIONS_JS = textwrap.dedent(
     const cornerToleranceInput = document.getElementById("corner-tolerance");
     const showDirectionInput = document.getElementById("show-direction");
     const testModeInput = document.getElementById("test-mode");
+    const debugLogInput = document.getElementById("debug-log");
     const trailColorInput = document.getElementById("trail-color");
     const trailWidthInput = document.getElementById("trail-width");
     const fadeDurationInput = document.getElementById("fade-duration");
     const zoomStepInput = document.getElementById("zoom-step");
     const searchUrlInput = document.getElementById("search-url");
     const disabledSitesInput = document.getElementById("disabled-sites");
+    const exportDebugButton = document.getElementById("export-debug");
+    const clearDebugButton = document.getElementById("clear-debug");
 
     function setStatus(text) {
       status.textContent = text;
@@ -1355,6 +1502,7 @@ OPTIONS_JS = textwrap.dedent(
       cornerToleranceInput.value = settings.cornerToleranceDeg;
       showDirectionInput.checked = Boolean(settings.showDirection);
       testModeInput.checked = Boolean(settings.testMode);
+      debugLogInput.checked = Boolean(settings.debugLog);
       trailColorInput.value = settings.trailColor;
       trailWidthInput.value = settings.trailWidth;
       fadeDurationInput.value = settings.fadeDurationMs;
@@ -1377,6 +1525,7 @@ OPTIONS_JS = textwrap.dedent(
           DEFAULT_SETTINGS.cornerToleranceDeg,
         showDirection: showDirectionInput.checked,
         testMode: testModeInput.checked,
+        debugLog: debugLogInput.checked,
         trailColor: trailColorInput.value || DEFAULT_SETTINGS.trailColor,
         trailWidth: Number(trailWidthInput.value) || DEFAULT_SETTINGS.trailWidth,
         fadeDurationMs:
@@ -1414,6 +1563,13 @@ OPTIONS_JS = textwrap.dedent(
       const settings = collectSettings();
       chrome.storage.sync.set({ gestures, settings }, () => {
         setStatus("Saved.");
+      });
+    }
+
+    function saveSettingsOnly() {
+      const settings = collectSettings();
+      chrome.storage.sync.set({ settings }, () => {
+        setStatus("Settings saved.");
       });
     }
 
@@ -1477,10 +1633,46 @@ OPTIONS_JS = textwrap.dedent(
       reader.readAsText(file);
     }
 
+    function exportDebugLog() {
+      chrome.runtime.sendMessage({ type: "getDebugLog" }, (response) => {
+        if (chrome.runtime.lastError) {
+          setStatus("Debug log unavailable.");
+          return;
+        }
+        const events = (response && response.events) || [];
+        if (!events.length) {
+          setStatus("No events collected yet.");
+        }
+        const blob = new Blob([JSON.stringify({ events }, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "gesture_debug_log.json";
+        link.click();
+        URL.revokeObjectURL(url);
+        setStatus("Debug log exported.");
+      });
+    }
+
+    function clearDebugLog() {
+      chrome.runtime.sendMessage({ type: "clearDebugLog" }, () => {
+        if (chrome.runtime.lastError) {
+          setStatus("Debug log unavailable.");
+          return;
+        }
+        setStatus("Debug log cleared.");
+      });
+    }
+
     addRowButton.addEventListener("click", () => addRow("", ACTIONS[0].value));
     saveButton.addEventListener("click", saveOptions);
     applyPresetButton.addEventListener("click", applyPreset);
     exportButton.addEventListener("click", exportSettings);
+    exportDebugButton.addEventListener("click", exportDebugLog);
+    clearDebugButton.addEventListener("click", clearDebugLog);
+    debugLogInput.addEventListener("change", saveSettingsOnly);
     importFile.addEventListener("change", () => {
       importSettings(importFile.files[0]);
     });
@@ -1571,7 +1763,7 @@ def render_svg_to_png(svg_path, png_path, size):
 
 
 def main():
-    root = os.path.join(os.getcwd(), "SimpleGestures")
+    root = os.path.join(os.getcwd(), "GestHero")
     os.makedirs(root, exist_ok=True)
 
     manifest = copy.deepcopy(MANIFEST)
