@@ -35,3 +35,5 @@
 - Renamed generated extension folder to `GestHero` and updated README install steps.
 - Changed repository visibility to public.
 - Renamed the journal file to `technical_journey.md`.
+- Added `.gitignore` for generated/build folders and editor artifacts.
+- Updated README with public repository link.

@@ -1,5 +1,7 @@
 # GestureHero (GestHero)
 
+Public repo: https://github.com/tahircengiz/gestHero
+
 Manifest V3 tabanli, sifir bagimlilikli bir mouse gesture eklentisi. Tek komutla
 tum dosyalari olusturur ve Chrome/Edge/Brave gibi Chromium tabanli tarayicilarda
 calisir.
