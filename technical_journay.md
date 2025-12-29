@@ -12,3 +12,4 @@
 - Removed temporary `testfile`.
 - Added `build_extension.py` generator script for the MV3 extension scaffolding.
 - Prepared `gestHero.svg` to be tracked in git.
+- Committed and pushed the build script, journal update, and SVG asset to `main`.
