@@ -33,3 +33,4 @@
 - Added diagonal-to-cardinal simplification for turn smoothing (e.g., U UR R -> U R).
 - Added project README with setup, usage, and debug notes.
 - Renamed generated extension folder to `GestHero` and updated README install steps.
+- Changed repository visibility to public.
