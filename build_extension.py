@@ -1763,7 +1763,7 @@ def render_svg_to_png(svg_path, png_path, size):
 
 
 def main():
-    root = os.path.join(os.getcwd(), "GestHero")
+    root = os.path.join(os.getcwd(), "gestHero")
     os.makedirs(root, exist_ok=True)
 
     manifest = copy.deepcopy(MANIFEST)

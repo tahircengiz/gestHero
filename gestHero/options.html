@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Simple Gestures Options</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f6f6f6;
+        color: #222;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 0 0 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="color"],
+      textarea {
+        width: 100%;
+        padding: 6px;
+        box-sizing: border-box;
+      }
+      select {
+        width: 100%;
+        padding: 6px;
+      }
+      textarea {
+        resize: vertical;
+      }
+      button {
+        padding: 8px 12px;
+      }
+      .section {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 12px;
+        margin-top: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .row label {
+        flex: 1;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .row-actions button {
+        margin: 0;
+      }
+      #status {
+        margin-left: 4px;
+      }
+      .hint {
+        font-size: 12px;
+        color: #666;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Simple Gestures</h1>
+    <p>Use U, D, L, R. Use spaces or commas to separate steps.</p>
+    <p class="hint">Diagonals use UR, UL, DR, DL as a token. Use spaces for multi-step.</p>
+
+    <div class="section">
+      <h2>Input</h2>
+      <label>
+        Gesture mouse button
+        <select id="mouse-button">
+          <option value="right">Right</option>
+          <option value="middle">Middle</option>
+          <option value="left">Left</option>
+        </select>
+      </label>
+      <p class="hint">Hold the selected button and draw.</p>
+    </div>
+
+    <div class="section">
+      <h2>Gestures</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Sequence</th>
+            <th>Action</th>
+            <th>Remove</th>
+          </tr>
+        </thead>
+        <tbody id="gesture-rows"></tbody>
+      </table>
+      <div class="controls">
+        <button id="add-row">Add Gesture</button>
+        <button id="save">Save</button>
+        <span id="status"></span>
+      </div>
+      <div class="row">
+        <label>
+          Preset
+          <select id="preset-select"></select>
+        </label>
+        <button id="apply-preset">Apply Preset</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Behavior</h2>
+      <div class="grid">
+        <label>
+          Min distance (px)
+          <input type="number" id="min-distance" min="5" step="1" />
+        </label>
+        <label>
+          Min speed (px/s)
+          <input type="number" id="min-speed" min="0" step="50" />
+        </label>
+        <label>
+          Diagonal gestures
+          <input type="checkbox" id="diagonal-enabled" />
+        </label>
+        <label>
+          Diagonal bias
+          <input type="number" id="diagonal-bias" min="1" step="0.1" />
+        </label>
+        <label>
+          Corner min length (px)
+          <input type="number" id="corner-min-length" min="5" step="1" />
+        </label>
+        <label>
+          Corner tolerance (deg)
+          <input type="number" id="corner-tolerance" min="0" max="80" step="1" />
+        </label>
+        <label>
+          Show direction overlay
+          <input type="checkbox" id="show-direction" />
+        </label>
+        <label>
+          Test mode
+          <input type="checkbox" id="test-mode" />
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Visual</h2>
+      <div class="grid">
+        <label>
+          Trail color
+          <input type="color" id="trail-color" />
+        </label>
+        <label>
+          Trail width (px)
+          <input type="number" id="trail-width" min="1" step="1" />
+        </label>
+        <label>
+          Fade duration (ms)
+          <input type="number" id="fade-duration" min="0" step="50" />
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Tabs &amp; Windows</h2>
+      <div class="grid">
+        <label>
+          Zoom step
+          <input type="number" id="zoom-step" min="0.05" step="0.05" />
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Search</h2>
+      <label>
+        Search URL template
+        <input type="text" id="search-url" />
+      </label>
+      <p class="hint">Use %s where the query should go.</p>
+    </div>
+
+    <div class="section">
+      <h2>Disable on Sites</h2>
+      <textarea
+        id="disabled-sites"
+        rows="4"
+        placeholder="example.com"
+      ></textarea>
+      <p class="hint">One per line or comma separated. Matches subdomains.</p>
+    </div>
+
+    <div class="section">
+      <h2>Import / Export</h2>
+      <div class="row">
+        <input
+          type="file"
+          id="import-file"
+          accept=".json,application/json,text/plain"
+        />
+        <button id="export">Export</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Debug</h2>
+      <label>
+        Enable debug logging
+        <input type="checkbox" id="debug-log" />
+      </label>
+      <p class="hint">Debug toggle saves immediately.</p>
+      <div class="controls">
+        <button id="export-debug">Export Debug Log</button>
+        <button id="clear-debug">Clear Debug Log</button>
+      </div>
+    </div>
+
+    <p class="hint">Hold the selected mouse button and drag to draw a gesture.</p>
+    <p class="hint">Link actions require starting the gesture on a link.</p>
+    <p class="hint">Selection actions require text selected.</p>
+
+    <script src="options.js"></script>
+  </body>
+</html>
