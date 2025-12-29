@@ -1,4 +1,4 @@
-# GestureHero (GestHero)
+# GestureHero (gestHero)
 
 Public repo: https://github.com/tahircengiz/gestHero
 
