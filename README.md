@@ -1,5 +1,8 @@
 # GestureHero (gestHero)
 
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Manifest V3](https://img.shields.io/badge/manifest-v3-blue.svg)
+
 Public repo: https://github.com/tahircengiz/gestHero
 
 Manifest V3 tabanli, sifir bagimlilikli bir mouse gesture eklentisi. Tek komutla
@@ -44,6 +47,11 @@ fallback kullanilir.
 - `open_link_new_tab/background/new_window`, `copy_link_url`
 - `search_selected_text`, `scroll_top/bottom`
 
+## Demo
+
+Kisa bir demo GIF'i eklemek istersen `docs/demo.gif` olarak kaydedip README'ye
+linkleyebilirsin.
+
 ## GitHub'dan Indirip Chromium'a Ekleme
 
 1. GitHub repo sayfasina git
@@ -68,3 +76,8 @@ fallback kullanilir.
 - Content script tum sitelerde calisir. Sorunlu siteler icin "Disable on Sites"
   listesi kullan.
 - Gesture algisi icin esik degerleri ayarlardan degistirilebilir.
+
+## Guvenlik
+
+- Eklenti tum sayfalarda content script calistirir (`<all_urls>`). Bu beklenen
+  davranistir; istersen "Disable on Sites" ile sinirlayabilirsin.
