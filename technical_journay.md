@@ -9,3 +9,6 @@
 - PAT-based `gh auth login` failed due to missing `read:org` scope; need token with that scope or use API workaround.
 - Created private GitHub repo `tahircengiz/prj_GestureHero` via API and added `origin` SSH remote.
 - Committed `technical_journay.md` and pushed initial commit to `main`.
+- Removed temporary `testfile`.
+- Added `build_extension.py` generator script for the MV3 extension scaffolding.
+- Prepared `gestHero.svg` to be tracked in git.
