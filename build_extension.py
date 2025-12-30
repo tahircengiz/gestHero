@@ -844,7 +844,7 @@ CONTENT_JS = textwrap.dedent(
       if (isSiteDisabled()) {
         return;
       }
-      if (gestureButton === 2 || gestureButton === 1) {
+      if (gestureButton !== 2) {
         event.preventDefault();
       }
       gestureActive = true;

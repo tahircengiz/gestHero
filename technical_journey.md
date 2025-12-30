@@ -39,3 +39,4 @@
 - Updated README with public repository link.
 - Added MIT LICENSE and README badges/security notes.
 - Updated README tone and added direct import instructions for `gestHero/`.
+- Allowed default right-click context menu when no gesture is performed.
