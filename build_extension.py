@@ -1380,61 +1380,151 @@ OPTIONS_HTML = textwrap.dedent(
     <html>
       <head>
         <meta charset="utf-8" />
-        <title>Simple Gestures Options</title>
+        <title>GestHero Options</title>
         <style>
+          :root {
+            --bg: #f1f3f5;
+            --panel: #ffffff;
+            --text: #1f2933;
+            --muted: #5f6b7a;
+            --accent: #2563eb;
+            --accent-strong: #1d4ed8;
+            --border: #d9dee7;
+            --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            --radius: 14px;
+          }
+          * {
+            box-sizing: border-box;
+          }
           body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f6f6f6;
-            color: #222;
+            font-family: "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue",
+              sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: radial-gradient(circle at top, #ffffff, #eef1f5 55%, #e9edf3);
+            color: var(--text);
           }
           h1 {
-            font-size: 20px;
-            margin-bottom: 10px;
+            font-size: 26px;
+            margin: 0;
           }
           h2 {
             font-size: 16px;
-            margin: 0 0 8px;
+            margin: 0 0 12px;
+          }
+          p {
+            margin: 0;
+          }
+          .container {
+            max-width: 980px;
+            margin: 0 auto;
+          }
+          .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 18px;
+          }
+          .subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 6px;
           }
           table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
+            background: var(--panel);
+            border-radius: 10px;
+            overflow: hidden;
           }
           th,
           td {
-            border: 1px solid #ccc;
-            padding: 8px;
+            border: 1px solid var(--border);
+            padding: 10px;
             text-align: left;
+          }
+          th {
+            background: #f5f7fb;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
           }
           input[type="text"],
           input[type="number"],
           input[type="color"],
           textarea {
             width: 100%;
-            padding: 6px;
-            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--text);
+            font-size: 14px;
           }
           select {
             width: 100%;
-            padding: 6px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--text);
+            font-size: 14px;
+          }
+          input:focus,
+          select:focus,
+          textarea:focus {
+            outline: 2px solid rgba(37, 99, 235, 0.2);
+            border-color: var(--accent);
           }
           textarea {
             resize: vertical;
           }
           button {
-            padding: 8px 12px;
+            padding: 8px 14px;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            background: #e7ebf3;
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 120ms ease, box-shadow 120ms ease;
+          }
+          button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+          }
+          button.primary {
+            background: var(--accent);
+            color: #fff;
+          }
+          button.primary:hover {
+            background: var(--accent-strong);
+          }
+          button.ghost {
+            background: #fff;
+            border: 1px solid var(--border);
+          }
+          button.danger {
+            background: #fee2e2;
+            color: #b91c1c;
+          }
+          button.danger:hover {
+            background: #fecaca;
           }
           .section {
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 12px;
-            margin-top: 12px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-top: 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
           }
           .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 10px;
+            gap: 12px;
           }
           .row {
             display: flex;
@@ -1456,18 +1546,34 @@ OPTIONS_HTML = textwrap.dedent(
           }
           #status {
             margin-left: 4px;
+            color: var(--accent);
+            font-weight: 600;
           }
           .hint {
             font-size: 12px;
-            color: #666;
+            color: var(--muted);
             margin-top: 6px;
+          }
+          label {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 12px;
           }
         </style>
       </head>
       <body>
-        <h1>Simple Gestures</h1>
-        <p>Use U, D, L, R. Use spaces or commas to separate steps.</p>
-        <p class="hint">Diagonals use UR, UL, DR, DL as a token. Use spaces for multi-step.</p>
+        <main class="container">
+          <header class="page-header">
+            <div>
+              <h1>GestHero</h1>
+              <p class="subtitle">
+                U, D, L, R kullan. Bosluk veya virgul ile adim ayir.
+              </p>
+            </div>
+            <p class="hint">Diagonals: UR, UL, DR, DL</p>
+          </header>
 
         <div class="section">
           <h2>Input</h2>
@@ -1503,8 +1609,8 @@ OPTIONS_HTML = textwrap.dedent(
             <tbody id="gesture-rows"></tbody>
           </table>
           <div class="controls">
-            <button id="add-row">Add Gesture</button>
-            <button id="save">Save</button>
+            <button id="add-row" class="ghost">Add Gesture</button>
+            <button id="save" class="primary">Save</button>
             <span id="status"></span>
           </div>
           <div class="row">
@@ -1512,7 +1618,7 @@ OPTIONS_HTML = textwrap.dedent(
               Preset
               <select id="preset-select"></select>
             </label>
-            <button id="apply-preset">Apply Preset</button>
+            <button id="apply-preset" class="ghost">Apply Preset</button>
           </div>
         </div>
 
@@ -1609,7 +1715,7 @@ OPTIONS_HTML = textwrap.dedent(
               id="import-file"
               accept=".json,application/json,text/plain"
             />
-            <button id="export">Export</button>
+            <button id="export" class="ghost">Export</button>
           </div>
         </div>
 
@@ -1621,8 +1727,8 @@ OPTIONS_HTML = textwrap.dedent(
           </label>
           <p class="hint">Debug toggle saves immediately.</p>
           <div class="controls">
-            <button id="export-debug">Export Debug Log</button>
-            <button id="clear-debug">Clear Debug Log</button>
+            <button id="export-debug" class="ghost">Export Debug Log</button>
+            <button id="clear-debug" class="danger">Clear Debug Log</button>
           </div>
         </div>
 
@@ -1631,6 +1737,7 @@ OPTIONS_HTML = textwrap.dedent(
         <p class="hint">Selection actions require text selected.</p>
 
         <script src="options.js"></script>
+        </main>
       </body>
     </html>
     """

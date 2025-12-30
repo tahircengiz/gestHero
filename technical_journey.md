@@ -53,6 +53,7 @@
 - Deferred early contextmenu events during right-click hold and attempted to re-trigger the menu on short release.
 - Switched macOS to double right-click for native context menu; single right-click reserved for gestures.
 - Documented macOS double right-click behavior and Windows/Linux short-click menu note in README.
+- Refreshed options UI styling with a cleaner layout, typography, and button hierarchy.
 
 ## 2025-12-30
 
