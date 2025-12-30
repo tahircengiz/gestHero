@@ -11,6 +11,7 @@ const DEFAULT_GESTURES = [
 
 const DEFAULT_SETTINGS = {
   mouseButton: "right",
+  holdDelayMs: 180,
   minDistance: 20,
   minSpeed: 700,
   diagonalEnabled: true,
@@ -117,6 +118,7 @@ const exportButton = document.getElementById("export");
 const minDistanceInput = document.getElementById("min-distance");
 const minSpeedInput = document.getElementById("min-speed");
 const mouseButtonSelect = document.getElementById("mouse-button");
+const holdDelayInput = document.getElementById("hold-delay");
 const diagonalEnabledInput = document.getElementById("diagonal-enabled");
 const diagonalBiasInput = document.getElementById("diagonal-bias");
 const cornerMinLengthInput = document.getElementById("corner-min-length");
@@ -211,6 +213,7 @@ function setRows(gestures) {
 function fillSettings(values) {
   const settings = { ...DEFAULT_SETTINGS, ...(values || {}) };
   mouseButtonSelect.value = settings.mouseButton || DEFAULT_SETTINGS.mouseButton;
+  holdDelayInput.value = settings.holdDelayMs;
   minDistanceInput.value = settings.minDistance;
   minSpeedInput.value = settings.minSpeed;
   diagonalEnabledInput.checked = Boolean(settings.diagonalEnabled);
@@ -229,8 +232,12 @@ function fillSettings(values) {
 }
 
 function collectSettings() {
+  const holdDelayValue = Number(holdDelayInput.value);
   return {
     mouseButton: mouseButtonSelect.value || DEFAULT_SETTINGS.mouseButton,
+    holdDelayMs: Number.isNaN(holdDelayValue)
+      ? DEFAULT_SETTINGS.holdDelayMs
+      : Math.max(0, holdDelayValue),
     minDistance: Number(minDistanceInput.value) || DEFAULT_SETTINGS.minDistance,
     minSpeed: Number(minSpeedInput.value) || DEFAULT_SETTINGS.minSpeed,
     diagonalEnabled: diagonalEnabledInput.checked,

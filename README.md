@@ -41,6 +41,9 @@ fallback kullanilir.
 - Options sayfasindan gesture listesi ve ayarlari duzenle
 - Diagonaller token olarak girilir: `UR`, `UL`, `DR`, `DL`
 - Cok adimli hareketlerde bosluk kullan: `U R`
+- **macOS (Chrome/Brave)**: Native sag menu icin **cift sag tik** kullan.
+- **Windows/Linux**: Kisa sag tik menu acar, uzun basili tutma gesture baslatir.
+- "Hold delay (ms)" ile menu/gesture esigini ayarlayabilirsin.
 
 ## Debug Log
 

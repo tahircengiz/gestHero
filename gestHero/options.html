@@ -93,15 +93,23 @@
 
     <div class="section">
       <h2>Input</h2>
-      <label>
-        Gesture mouse button
-        <select id="mouse-button">
-          <option value="right">Right</option>
-          <option value="middle">Middle</option>
-          <option value="left">Left</option>
-        </select>
-      </label>
-      <p class="hint">Hold the selected button and draw.</p>
+      <div class="grid">
+        <label>
+          Gesture mouse button
+          <select id="mouse-button">
+            <option value="right">Right</option>
+            <option value="middle">Middle</option>
+            <option value="left">Left</option>
+          </select>
+        </label>
+        <label>
+          Hold delay (ms)
+          <input type="number" id="hold-delay" min="0" step="10" />
+        </label>
+      </div>
+      <p class="hint">
+        Right button: short click opens the context menu; hold starts a gesture.
+      </p>
     </div>
 
     <div class="section">
