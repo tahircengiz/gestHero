@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>GestHero Options</title>
+    <title data-i18n="optionsTitle">GestHero Options</title>
     <style>
       :root {
         --bg: #f1f3f5;
@@ -254,90 +254,94 @@
       <header class="page-header">
         <div>
           <h1>GestHero</h1>
-          <p class="subtitle">
-            U, D, L, R kullan. Bosluk veya virgul ile adim ayir.
+          <p class="subtitle" data-i18n="subtitle">
+            Use U, D, L, R. Separate steps with a space or comma.
           </p>
         </div>
-        <p class="hint">Diagonals: UR, UL, DR, DL</p>
+        <p class="hint" data-i18n="diagonalsHint">Diagonals: UR, UL, DR, DL</p>
       </header>
 
       <div class="section">
-        <h2>Input</h2>
+        <h2 data-i18n="sectionInput">Input</h2>
         <div class="grid">
           <label>
-            Gesture mouse button
+            <span data-i18n="mouseButtonLabel">Gesture mouse button</span>
             <select id="mouse-button">
-              <option value="right">Right</option>
-              <option value="middle">Middle</option>
-              <option value="left">Left</option>
+              <option value="right" data-i18n="buttonRight">Right</option>
+              <option value="middle" data-i18n="buttonMiddle">Middle</option>
+              <option value="left" data-i18n="buttonLeft">Left</option>
             </select>
           </label>
           <label>
-            Hold delay (ms)
+            <span data-i18n="holdDelayLabel">Hold delay (ms)</span>
             <input type="number" id="hold-delay" min="0" step="10" />
           </label>
         </div>
-        <p class="hint">
+        <p class="hint" data-i18n="inputHint">
           Right button: short click opens the context menu; hold starts a
           gesture.
         </p>
       </div>
 
       <div class="section">
-        <h2>Gestures</h2>
+        <h2 data-i18n="sectionGestures">Gestures</h2>
         <table>
           <thead>
             <tr>
-              <th>Sequence</th>
-              <th>Action</th>
-              <th>Tools</th>
+              <th data-i18n="thSequence">Sequence</th>
+              <th data-i18n="thAction">Action</th>
+              <th data-i18n="thTools">Tools</th>
             </tr>
           </thead>
           <tbody id="gesture-rows"></tbody>
         </table>
         <div class="controls">
-          <button id="add-row" class="ghost">Add Gesture</button>
-          <button id="save" class="primary">Save</button>
+          <button id="add-row" class="ghost" data-i18n="addGesture">
+            Add Gesture
+          </button>
+          <button id="save" class="primary" data-i18n="save">Save</button>
           <span id="status"></span>
         </div>
-        <p class="hint">
-          "Draw" ile fareyle cizerek sequence doldur. Cakisan (ayni) hareketler
-          kirmizi ile isaretlenir.
+        <p class="hint" data-i18n="drawHint">
+          Use "Draw" to record a gesture with the mouse. Duplicate gestures are
+          highlighted in red.
         </p>
         <div class="row">
           <label>
-            Preset
+            <span data-i18n="presetLabel">Preset</span>
             <select id="preset-select"></select>
           </label>
-          <button id="apply-preset" class="ghost">Apply Preset</button>
+          <button id="apply-preset" class="ghost" data-i18n="applyPreset">
+            Apply Preset
+          </button>
         </div>
       </div>
 
       <div class="section">
-        <h2>Behavior</h2>
+        <h2 data-i18n="sectionBehavior">Behavior</h2>
         <div class="grid">
           <label>
-            Min distance (px)
+            <span data-i18n="minDistanceLabel">Min distance (px)</span>
             <input type="number" id="min-distance" min="5" step="1" />
           </label>
           <label>
-            Min speed (px/s)
+            <span data-i18n="minSpeedLabel">Min speed (px/s)</span>
             <input type="number" id="min-speed" min="0" step="50" />
           </label>
           <label>
-            Diagonal gestures
+            <span data-i18n="diagonalEnabledLabel">Diagonal gestures</span>
             <input type="checkbox" id="diagonal-enabled" />
           </label>
           <label>
-            Diagonal bias
+            <span data-i18n="diagonalBiasLabel">Diagonal bias</span>
             <input type="number" id="diagonal-bias" min="1" step="0.1" />
           </label>
           <label>
-            Corner min length (px)
+            <span data-i18n="cornerMinLengthLabel">Corner min length (px)</span>
             <input type="number" id="corner-min-length" min="5" step="1" />
           </label>
           <label>
-            Corner tolerance (deg)
+            <span data-i18n="cornerToleranceLabel">Corner tolerance (deg)</span>
             <input
               type="number"
               id="corner-tolerance"
@@ -347,93 +351,111 @@
             />
           </label>
           <label>
-            Show direction overlay
+            <span data-i18n="showDirectionLabel">Show direction overlay</span>
             <input type="checkbox" id="show-direction" />
           </label>
           <label>
-            Test mode
+            <span data-i18n="testModeLabel">Test mode</span>
             <input type="checkbox" id="test-mode" />
+          </label>
+          <label>
+            <span data-i18n="cheatSheetLabel">Show gesture cheat sheet</span>
+            <input type="checkbox" id="cheat-sheet" />
           </label>
         </div>
       </div>
 
       <div class="section">
-        <h2>Visual</h2>
+        <h2 data-i18n="sectionVisual">Visual</h2>
         <div class="grid">
           <label>
-            Trail color
+            <span data-i18n="trailColorLabel">Trail color</span>
             <input type="color" id="trail-color" />
           </label>
           <label>
-            Trail width (px)
+            <span data-i18n="trailWidthLabel">Trail width (px)</span>
             <input type="number" id="trail-width" min="1" step="1" />
           </label>
           <label>
-            Fade duration (ms)
+            <span data-i18n="fadeDurationLabel">Fade duration (ms)</span>
             <input type="number" id="fade-duration" min="0" step="50" />
           </label>
         </div>
       </div>
 
       <div class="section">
-        <h2>Tabs &amp; Windows</h2>
+        <h2 data-i18n="sectionTabs">Tabs &amp; Windows</h2>
         <div class="grid">
           <label>
-            Zoom step
+            <span data-i18n="zoomStepLabel">Zoom step</span>
             <input type="number" id="zoom-step" min="0.05" step="0.05" />
           </label>
         </div>
       </div>
 
       <div class="section">
-        <h2>Search</h2>
+        <h2 data-i18n="sectionSearch">Search</h2>
         <label>
-          Search URL template
+          <span data-i18n="searchUrlLabel">Search URL template</span>
           <input type="text" id="search-url" />
         </label>
-        <p class="hint">Use %s where the query should go.</p>
+        <p class="hint" data-i18n="searchHint">
+          Use %s where the query should go.
+        </p>
       </div>
 
       <div class="section">
-        <h2>Disable on Sites</h2>
+        <h2 data-i18n="sectionDisable">Disable on Sites</h2>
         <textarea
           id="disabled-sites"
           rows="4"
           placeholder="example.com"
         ></textarea>
-        <p class="hint">One per line or comma separated. Matches subdomains.</p>
+        <p class="hint" data-i18n="disabledHint">
+          One per line or comma separated. Matches subdomains.
+        </p>
       </div>
 
       <div class="section">
-        <h2>Import / Export</h2>
+        <h2 data-i18n="sectionImportExport">Import / Export</h2>
         <div class="row">
           <input
             type="file"
             id="import-file"
             accept=".json,application/json,text/plain"
           />
-          <button id="export" class="ghost">Export</button>
+          <button id="export" class="ghost" data-i18n="export">Export</button>
         </div>
       </div>
 
       <div class="section">
-        <h2>Debug</h2>
+        <h2 data-i18n="sectionDebug">Debug</h2>
         <label>
-          Enable debug logging
+          <span data-i18n="debugEnableLabel">Enable debug logging</span>
           <input type="checkbox" id="debug-log" />
         </label>
-        <p class="hint">Debug toggle saves immediately.</p>
+        <p class="hint" data-i18n="debugHint">
+          Debug toggle saves immediately.
+        </p>
         <div class="controls">
-          <button id="export-debug" class="ghost">Export Debug Log</button>
-          <button id="clear-debug" class="danger">Clear Debug Log</button>
+          <button id="export-debug" class="ghost" data-i18n="exportDebug">
+            Export Debug Log
+          </button>
+          <button id="clear-debug" class="danger" data-i18n="clearDebug">
+            Clear Debug Log
+          </button>
         </div>
       </div>
 
-      <p class="hint">
+      <p class="hint" data-i18n="footerHint1">
         Hold the selected mouse button and drag to draw a gesture.
       </p>
-      <p class="hint">Link actions require starting the gesture on a link.</p>
-      <p class="hint">Selection actions require text selected.</p>
+      <p class="hint" data-i18n="footerHint2">
+        Link actions require starting the gesture on a link.
+      </p>
+      <p class="hint" data-i18n="footerHint3">
+        Selection actions require text selected.
+      </p>
 
       <script src="gestures-core.js"></script>
       <script src="options.js"></script>

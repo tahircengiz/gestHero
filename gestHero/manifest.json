@@ -1,7 +1,8 @@
 {
   "name": "GestHero",
-  "description": "Lightweight mouse gesture controls.",
-  "version": "1.1.0",
+  "description": "__MSG_appDesc__",
+  "version": "1.2.0",
+  "default_locale": "en",
   "manifest_version": 3,
   "permissions": ["storage", "tabs", "sessions", "windows"],
   "host_permissions": ["<all_urls>"],

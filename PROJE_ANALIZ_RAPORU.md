@@ -206,13 +206,13 @@ Mevcut mimariye doğal oturanlar:
 - [x] S7: `navigator.userAgentData` öncelikli macOS tespitine geçildi (platform fallback'li).
 - [x] S6: İzin gerekçeleri, iframe (top-frame only) ve pointer sınırı README'de dokümante edildi.
 
-**Faz 3 — Ürün geliştirme:** 🟡 _Kısmen tamamlandı (2026-05-29)_
+**Faz 3 — Ürün geliştirme:** ✅ _Tamamlandı (2026-05-29)_
 
 - [x] S8: `getDirection` okunabilirlik için yeniden düzenlendi; davranış korundu, sınır testleri eklendi. (Not: `diagonalBias` knob'u geriye dönük uyumluluk için bilinçli olarak korundu — kaldırmak ayar göçü/kırılma getirirdi.)
 - [x] Görsel gesture editörü (options'ta "Draw" ile çizerek kaydetme) + çakışma uyarısı + koyu mod eklendi. Çekirdeğe `recognizePoints`/`findConflicts`/`normalizeForMatch` (testli).
-- [ ] _Cheat-sheet overlay_ (basılı tutunca olası gesture'ları gösterme) — sonraki adıma bırakıldı.
-- [x] S10: CHANGELOG.md eklendi; sürüm 1.1.0'a yükseltildi (manifest + package.json).
-- [ ] S9: i18n (`_locales`, `chrome.i18n`) — daha büyük UI refactor'ü; sonraki adıma bırakıldı.
+- [x] Cheat-sheet overlay: gesture çizilirken yapılandırılmış hareketleri listeleyen panel (opt-in, varsayılan kapalı; etiketler i18n'den).
+- [x] S10: CHANGELOG.md eklendi; sürüm 1.2.0'a yükseltildi (manifest + package.json).
+- [x] S9: i18n eklendi — `chrome.i18n` + `_locales/` (EN/TR), `default_locale: en`. Options UI, aksiyon etiketleri ve eklenti açıklaması yerelleşir.
 
 ---
 

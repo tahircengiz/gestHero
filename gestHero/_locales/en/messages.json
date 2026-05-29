@@ -1,0 +1,130 @@
+{
+  "appDesc": { "message": "Lightweight mouse gesture controls." },
+  "optionsTitle": { "message": "GestHero Options" },
+  "subtitle": {
+    "message": "Use U, D, L, R. Separate steps with a space or comma."
+  },
+  "diagonalsHint": { "message": "Diagonals: UR, UL, DR, DL" },
+
+  "sectionInput": { "message": "Input" },
+  "mouseButtonLabel": { "message": "Gesture mouse button" },
+  "buttonRight": { "message": "Right" },
+  "buttonMiddle": { "message": "Middle" },
+  "buttonLeft": { "message": "Left" },
+  "holdDelayLabel": { "message": "Hold delay (ms)" },
+  "inputHint": {
+    "message": "Right button: short click opens the context menu; hold starts a gesture."
+  },
+
+  "sectionGestures": { "message": "Gestures" },
+  "thSequence": { "message": "Sequence" },
+  "thAction": { "message": "Action" },
+  "thTools": { "message": "Tools" },
+  "addGesture": { "message": "Add Gesture" },
+  "save": { "message": "Save" },
+  "draw": { "message": "Draw" },
+  "remove": { "message": "Remove" },
+  "drawHint": {
+    "message": "Use \"Draw\" to record a gesture with the mouse. Duplicate gestures are highlighted in red."
+  },
+  "presetLabel": { "message": "Preset" },
+  "applyPreset": { "message": "Apply Preset" },
+
+  "sectionBehavior": { "message": "Behavior" },
+  "minDistanceLabel": { "message": "Min distance (px)" },
+  "minSpeedLabel": { "message": "Min speed (px/s)" },
+  "diagonalEnabledLabel": { "message": "Diagonal gestures" },
+  "diagonalBiasLabel": { "message": "Diagonal bias" },
+  "cornerMinLengthLabel": { "message": "Corner min length (px)" },
+  "cornerToleranceLabel": { "message": "Corner tolerance (deg)" },
+  "showDirectionLabel": { "message": "Show direction overlay" },
+  "testModeLabel": { "message": "Test mode" },
+  "cheatSheetLabel": { "message": "Show gesture cheat sheet" },
+
+  "sectionVisual": { "message": "Visual" },
+  "trailColorLabel": { "message": "Trail color" },
+  "trailWidthLabel": { "message": "Trail width (px)" },
+  "fadeDurationLabel": { "message": "Fade duration (ms)" },
+
+  "sectionTabs": { "message": "Tabs & Windows" },
+  "zoomStepLabel": { "message": "Zoom step" },
+
+  "sectionSearch": { "message": "Search" },
+  "searchUrlLabel": { "message": "Search URL template" },
+  "searchHint": { "message": "Use %s where the query should go." },
+
+  "sectionDisable": { "message": "Disable on Sites" },
+  "disabledHint": {
+    "message": "One per line or comma separated. Matches subdomains."
+  },
+
+  "sectionImportExport": { "message": "Import / Export" },
+  "export": { "message": "Export" },
+
+  "sectionDebug": { "message": "Debug" },
+  "debugEnableLabel": { "message": "Enable debug logging" },
+  "debugHint": { "message": "Debug toggle saves immediately." },
+  "exportDebug": { "message": "Export Debug Log" },
+  "clearDebug": { "message": "Clear Debug Log" },
+
+  "footerHint1": {
+    "message": "Hold the selected mouse button and drag to draw a gesture."
+  },
+  "footerHint2": {
+    "message": "Link actions require starting the gesture on a link."
+  },
+  "footerHint3": { "message": "Selection actions require text selected." },
+
+  "recordHint": {
+    "message": "Draw the gesture, release to finish (Esc to cancel)"
+  },
+  "cheatSheetTitle": { "message": "Gestures" },
+
+  "statusSaved": { "message": "Saved." },
+  "statusSettingsSaved": { "message": "Settings saved." },
+  "statusPresetLoaded": { "message": "Preset loaded." },
+  "statusExported": { "message": "Exported." },
+  "statusImported": { "message": "Imported." },
+  "statusImportFailed": { "message": "Import failed." },
+  "statusDebugUnavailable": { "message": "Debug log unavailable." },
+  "statusNoEvents": { "message": "No events collected yet." },
+  "statusDebugExported": { "message": "Debug log exported." },
+  "statusDebugCleared": { "message": "Debug log cleared." },
+  "statusNoGesture": { "message": "No gesture detected." },
+  "statusGestureRecorded": { "message": "Gesture recorded." },
+  "statusDuplicate": {
+    "message": "Saved. Duplicate gesture(s): $LIST$",
+    "placeholders": { "list": { "content": "$1" } }
+  },
+
+  "action_new_tab": { "message": "New Tab (Right)" },
+  "action_new_window": { "message": "New Window" },
+  "action_new_incognito_window": { "message": "New Incognito Window" },
+  "action_open_link_new_tab": { "message": "Open Link in New Tab" },
+  "action_open_link_background_tab": {
+    "message": "Open Link in Background Tab (Right)"
+  },
+  "action_open_link_new_window": { "message": "Open Link in New Window" },
+  "action_close_tab": { "message": "Close Tab" },
+  "action_reload_tab": { "message": "Reload Tab" },
+  "action_reopen_closed_tab": { "message": "Reopen Closed Tab" },
+  "action_duplicate_tab": { "message": "Duplicate Tab" },
+  "action_toggle_pin_tab": { "message": "Pin/Unpin Tab" },
+  "action_toggle_mute_tab": { "message": "Mute/Unmute Tab" },
+  "action_go_back": { "message": "Back" },
+  "action_go_forward": { "message": "Forward" },
+  "action_switch_tab_left": { "message": "Switch Tab Left" },
+  "action_switch_tab_right": { "message": "Switch Tab Right" },
+  "action_switch_tab_first": { "message": "Switch to First Tab" },
+  "action_switch_tab_last": { "message": "Switch to Last Tab" },
+  "action_move_tab_left": { "message": "Move Tab Left" },
+  "action_move_tab_right": { "message": "Move Tab Right" },
+  "action_zoom_in": { "message": "Zoom In" },
+  "action_zoom_out": { "message": "Zoom Out" },
+  "action_zoom_reset": { "message": "Zoom Reset" },
+  "action_toggle_fullscreen": { "message": "Toggle Fullscreen" },
+  "action_search_selected_text": { "message": "Search Selected Text" },
+  "action_copy_link_url": { "message": "Copy Link URL" },
+  "action_scroll_top": { "message": "Scroll Top" },
+  "action_scroll_bottom": { "message": "Scroll Bottom" }
+}

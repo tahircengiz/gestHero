@@ -1,0 +1,134 @@
+{
+  "appDesc": { "message": "Hafif fare hareketi (mouse gesture) kontrolleri." },
+  "optionsTitle": { "message": "GestHero Ayarlar" },
+  "subtitle": {
+    "message": "U, D, L, R kullan. Adımları boşluk veya virgülle ayır."
+  },
+  "diagonalsHint": { "message": "Çaprazlar: UR, UL, DR, DL" },
+
+  "sectionInput": { "message": "Giriş" },
+  "mouseButtonLabel": { "message": "Gesture fare tuşu" },
+  "buttonRight": { "message": "Sağ" },
+  "buttonMiddle": { "message": "Orta" },
+  "buttonLeft": { "message": "Sol" },
+  "holdDelayLabel": { "message": "Basılı tutma gecikmesi (ms)" },
+  "inputHint": {
+    "message": "Sağ tuş: kısa tık menüyü açar; basılı tutma gesture başlatır."
+  },
+
+  "sectionGestures": { "message": "Hareketler" },
+  "thSequence": { "message": "Dizi" },
+  "thAction": { "message": "Aksiyon" },
+  "thTools": { "message": "Araçlar" },
+  "addGesture": { "message": "Hareket Ekle" },
+  "save": { "message": "Kaydet" },
+  "draw": { "message": "Çiz" },
+  "remove": { "message": "Sil" },
+  "drawHint": {
+    "message": "\"Çiz\" ile fareyle hareket kaydet. Çakışan hareketler kırmızı ile işaretlenir."
+  },
+  "presetLabel": { "message": "Hazır ayar" },
+  "applyPreset": { "message": "Hazır Ayarı Uygula" },
+
+  "sectionBehavior": { "message": "Davranış" },
+  "minDistanceLabel": { "message": "Min mesafe (px)" },
+  "minSpeedLabel": { "message": "Min hız (px/s)" },
+  "diagonalEnabledLabel": { "message": "Çapraz hareketler" },
+  "diagonalBiasLabel": { "message": "Çapraz eğilimi" },
+  "cornerMinLengthLabel": { "message": "Köşe min uzunluk (px)" },
+  "cornerToleranceLabel": { "message": "Köşe toleransı (derece)" },
+  "showDirectionLabel": { "message": "Yön göstergesini göster" },
+  "testModeLabel": { "message": "Test modu" },
+  "cheatSheetLabel": { "message": "Hareket kopya kağıdını göster" },
+
+  "sectionVisual": { "message": "Görsel" },
+  "trailColorLabel": { "message": "İz rengi" },
+  "trailWidthLabel": { "message": "İz kalınlığı (px)" },
+  "fadeDurationLabel": { "message": "Sönme süresi (ms)" },
+
+  "sectionTabs": { "message": "Sekmeler ve Pencereler" },
+  "zoomStepLabel": { "message": "Zoom adımı" },
+
+  "sectionSearch": { "message": "Arama" },
+  "searchUrlLabel": { "message": "Arama URL şablonu" },
+  "searchHint": { "message": "Sorgunun geleceği yere %s koy." },
+
+  "sectionDisable": { "message": "Sitelerde Devre Dışı Bırak" },
+  "disabledHint": {
+    "message": "Satır başına bir tane veya virgülle. Alt alan adlarını da kapsar."
+  },
+
+  "sectionImportExport": { "message": "İçe / Dışa Aktar" },
+  "export": { "message": "Dışa Aktar" },
+
+  "sectionDebug": { "message": "Hata Ayıklama" },
+  "debugEnableLabel": { "message": "Hata ayıklama kaydını aç" },
+  "debugHint": { "message": "Hata ayıklama anahtarı hemen kaydedilir." },
+  "exportDebug": { "message": "Hata Ayıklama Kaydını Dışa Aktar" },
+  "clearDebug": { "message": "Hata Ayıklama Kaydını Temizle" },
+
+  "footerHint1": {
+    "message": "Seçili fare tuşunu basılı tutup sürükleyerek hareket çiz."
+  },
+  "footerHint2": {
+    "message": "Bağlantı aksiyonları için gesture'ı bir bağlantı üzerinde başlat."
+  },
+  "footerHint3": {
+    "message": "Seçim aksiyonları için metin seçili olmalı."
+  },
+
+  "recordHint": {
+    "message": "Hareketi çiz, bitirmek için bırak (iptal için Esc)"
+  },
+  "cheatSheetTitle": { "message": "Hareketler" },
+
+  "statusSaved": { "message": "Kaydedildi." },
+  "statusSettingsSaved": { "message": "Ayarlar kaydedildi." },
+  "statusPresetLoaded": { "message": "Hazır ayar yüklendi." },
+  "statusExported": { "message": "Dışa aktarıldı." },
+  "statusImported": { "message": "İçe aktarıldı." },
+  "statusImportFailed": { "message": "İçe aktarma başarısız." },
+  "statusDebugUnavailable": {
+    "message": "Hata ayıklama kaydı kullanılamıyor."
+  },
+  "statusNoEvents": { "message": "Henüz olay toplanmadı." },
+  "statusDebugExported": { "message": "Hata ayıklama kaydı dışa aktarıldı." },
+  "statusDebugCleared": { "message": "Hata ayıklama kaydı temizlendi." },
+  "statusNoGesture": { "message": "Hareket algılanmadı." },
+  "statusGestureRecorded": { "message": "Hareket kaydedildi." },
+  "statusDuplicate": {
+    "message": "Kaydedildi. Yinelenen hareket(ler): $LIST$",
+    "placeholders": { "list": { "content": "$1" } }
+  },
+
+  "action_new_tab": { "message": "Yeni Sekme (Sağa)" },
+  "action_new_window": { "message": "Yeni Pencere" },
+  "action_new_incognito_window": { "message": "Yeni Gizli Pencere" },
+  "action_open_link_new_tab": { "message": "Bağlantıyı Yeni Sekmede Aç" },
+  "action_open_link_background_tab": {
+    "message": "Bağlantıyı Arka Plan Sekmesinde Aç (Sağa)"
+  },
+  "action_open_link_new_window": { "message": "Bağlantıyı Yeni Pencerede Aç" },
+  "action_close_tab": { "message": "Sekmeyi Kapat" },
+  "action_reload_tab": { "message": "Sekmeyi Yenile" },
+  "action_reopen_closed_tab": { "message": "Kapatılan Sekmeyi Aç" },
+  "action_duplicate_tab": { "message": "Sekmeyi Çoğalt" },
+  "action_toggle_pin_tab": { "message": "Sekmeyi Sabitle/Çöz" },
+  "action_toggle_mute_tab": { "message": "Sekmeyi Sustur/Aç" },
+  "action_go_back": { "message": "Geri" },
+  "action_go_forward": { "message": "İleri" },
+  "action_switch_tab_left": { "message": "Sol Sekmeye Geç" },
+  "action_switch_tab_right": { "message": "Sağ Sekmeye Geç" },
+  "action_switch_tab_first": { "message": "İlk Sekmeye Geç" },
+  "action_switch_tab_last": { "message": "Son Sekmeye Geç" },
+  "action_move_tab_left": { "message": "Sekmeyi Sola Taşı" },
+  "action_move_tab_right": { "message": "Sekmeyi Sağa Taşı" },
+  "action_zoom_in": { "message": "Yakınlaştır" },
+  "action_zoom_out": { "message": "Uzaklaştır" },
+  "action_zoom_reset": { "message": "Zoom Sıfırla" },
+  "action_toggle_fullscreen": { "message": "Tam Ekranı Aç/Kapat" },
+  "action_search_selected_text": { "message": "Seçili Metni Ara" },
+  "action_copy_link_url": { "message": "Bağlantı URL'sini Kopyala" },
+  "action_scroll_top": { "message": "En Üste Kaydır" },
+  "action_scroll_bottom": { "message": "En Alta Kaydır" }
+}

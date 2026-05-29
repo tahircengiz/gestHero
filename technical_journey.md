@@ -100,3 +100,7 @@
   - Options page: added a per-row "Draw" recorder (draw a gesture to fill the sequence field, reusing the shared recogniser), duplicate-gesture conflict highlighting + save-time warning, and a `prefers-color-scheme` dark mode.
   - S10 — Added `CHANGELOG.md`; bumped version to 1.1.0 (manifest + package.json).
   - Deferred to a follow-up: cheat-sheet overlay and full i18n (`_locales`).
+- **Phase 3 follow-up (completed):**
+  - i18n: added `chrome.i18n` + `_locales/en` and `_locales/tr` (96 keys each), `default_locale: en`, and `description: __MSG_appDesc__`. Options strings use `data-i18n` attributes resolved by `applyI18n()`; action labels and status messages localised with English fallbacks.
+  - Cheat-sheet overlay: opt-in `showCheatSheet` setting (default off) renders a panel listing configured gestures while drawing; action labels pulled from `chrome.i18n`.
+  - Bumped version to 1.2.0 and updated the changelog/README.

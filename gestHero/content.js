@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS = {
   fadeDurationMs: 350,
   showDirection: true,
   testMode: false,
+  showCheatSheet: false,
   disabledSites: "",
   zoomStep: 0.1,
   searchUrl: "https://www.google.com/search?q=%s",
@@ -216,6 +217,7 @@ let canvas = null;
 let ctx = null;
 let labelEl = null;
 let labelTimeout = null;
+let cheatSheetEl = null;
 
 function ensureLabel() {
   if (labelEl) {
@@ -307,6 +309,7 @@ function resizeCanvas() {
 }
 
 function fadeAndDestroyCanvas() {
+  destroyCheatSheet();
   if (!canvas) {
     return;
   }
@@ -323,11 +326,66 @@ function fadeAndDestroyCanvas() {
 }
 
 function destroyCanvas() {
+  destroyCheatSheet();
   if (canvas && canvas.parentNode) {
     canvas.parentNode.removeChild(canvas);
   }
   canvas = null;
   ctx = null;
+}
+
+function getActionLabel(action) {
+  const msg =
+    chrome.i18n && chrome.i18n.getMessage
+      ? chrome.i18n.getMessage("action_" + action)
+      : "";
+  return msg || action;
+}
+
+// Reference panel listing the configured gestures while one is being drawn.
+function showCheatSheet() {
+  if (!settings.showCheatSheet || cheatSheetEl) {
+    return;
+  }
+  const entries = Array.from(gestureMap.entries());
+  if (!entries.length) {
+    return;
+  }
+  cheatSheetEl = document.createElement("div");
+  cheatSheetEl.style.position = "fixed";
+  cheatSheetEl.style.left = "12px";
+  cheatSheetEl.style.bottom = "12px";
+  cheatSheetEl.style.maxHeight = "60vh";
+  cheatSheetEl.style.overflow = "auto";
+  cheatSheetEl.style.padding = "10px 12px";
+  cheatSheetEl.style.background = "rgba(0, 0, 0, 0.78)";
+  cheatSheetEl.style.color = "#fff";
+  cheatSheetEl.style.font = "12px/1.5 system-ui, sans-serif";
+  cheatSheetEl.style.borderRadius = "8px";
+  cheatSheetEl.style.zIndex = "2147483647";
+  cheatSheetEl.style.pointerEvents = "none";
+  const title = document.createElement("div");
+  title.textContent =
+    (chrome.i18n &&
+      chrome.i18n.getMessage &&
+      chrome.i18n.getMessage("cheatSheetTitle")) ||
+    "Gestures";
+  title.style.fontWeight = "600";
+  title.style.marginBottom = "4px";
+  cheatSheetEl.appendChild(title);
+  entries.forEach(([sequence, action]) => {
+    const rowEl = document.createElement("div");
+    rowEl.textContent = `${sequence}  →  ${getActionLabel(action)}`;
+    cheatSheetEl.appendChild(rowEl);
+  });
+  document.documentElement.appendChild(cheatSheetEl);
+}
+
+function destroyCheatSheet() {
+  if (cheatSheetEl && cheatSheetEl.parentNode) {
+    cheatSheetEl.parentNode.removeChild(cheatSheetEl);
+  }
+  cheatSheetEl = null;
 }
 
 function findLinkHref(target) {
@@ -541,6 +599,7 @@ function activateGesture(x, y, mode) {
   lastDrawY = y;
   lastMoveTime = performance.now();
   createCanvas();
+  showCheatSheet();
   if (settings.showDirection) {
     showLabel("");
   }

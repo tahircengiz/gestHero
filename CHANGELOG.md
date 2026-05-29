@@ -4,6 +4,21 @@ Bu projedeki dikkate değer değişiklikler bu dosyada tutulur.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 [Semantic Versioning](https://semver.org/) kullanır.
 
+## [1.2.0] - 2026-05-29
+
+### Added
+
+- **Çoklu dil (i18n)**: `chrome.i18n` + `_locales/` ile İngilizce ve Türkçe.
+  Options arayüzü, aksiyon etiketleri ve eklenti açıklaması tarayıcı diline göre
+  yerelleşir (`default_locale: en`).
+- **Cheat-sheet overlay**: Yeni "Show gesture cheat sheet" ayarı açıkken, bir
+  gesture çizilirken yapılandırılmış hareketleri listeleyen bir referans paneli
+  gösterilir (aksiyon etiketleri i18n'den gelir).
+
+### Notes
+
+- Cheat-sheet varsayılan olarak kapalıdır (mevcut davranış korunur).
+
 ## [1.1.0] - 2026-05-29
 
 ### Added

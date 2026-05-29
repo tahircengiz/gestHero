@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS = {
   fadeDurationMs: 350,
   showDirection: true,
   testMode: false,
+  showCheatSheet: false,
   disabledSites: "",
   zoomStep: 0.1,
   searchUrl: "https://www.google.com/search?q=%s",
@@ -123,6 +124,7 @@ const cornerMinLengthInput = document.getElementById("corner-min-length");
 const cornerToleranceInput = document.getElementById("corner-tolerance");
 const showDirectionInput = document.getElementById("show-direction");
 const testModeInput = document.getElementById("test-mode");
+const cheatSheetInput = document.getElementById("cheat-sheet");
 const debugLogInput = document.getElementById("debug-log");
 const trailColorInput = document.getElementById("trail-color");
 const trailWidthInput = document.getElementById("trail-width");
@@ -132,6 +134,31 @@ const searchUrlInput = document.getElementById("search-url");
 const disabledSitesInput = document.getElementById("disabled-sites");
 const exportDebugButton = document.getElementById("export-debug");
 const clearDebugButton = document.getElementById("clear-debug");
+
+// Localised message lookup with a fallback (used before/if a key is missing).
+function t(key, fallback, subs) {
+  const msg =
+    chrome.i18n && chrome.i18n.getMessage
+      ? chrome.i18n.getMessage(key, subs)
+      : "";
+  return msg || fallback || "";
+}
+
+// Replace [data-i18n] text content with the localised message, keeping the
+// HTML default as a fallback when a message is missing.
+function applyI18n() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    const msg = t(key, "");
+    if (msg) {
+      el.textContent = msg;
+    }
+  });
+  const title = t("optionsTitle", "");
+  if (title) {
+    document.title = title;
+  }
+}
 
 function setStatus(text, isWarn) {
   status.textContent = text;
@@ -176,7 +203,10 @@ function recordGesture(targetInput) {
   canvas.height = window.innerHeight;
   const hint = document.createElement("div");
   hint.className = "record-hint";
-  hint.textContent = "Draw the gesture, release to finish (Esc to cancel)";
+  hint.textContent = t(
+    "recordHint",
+    "Draw the gesture, release to finish (Esc to cancel)",
+  );
   overlay.appendChild(canvas);
   overlay.appendChild(hint);
   document.body.appendChild(overlay);
@@ -221,12 +251,12 @@ function recordGesture(targetInput) {
     const tokens = GestureCore.recognizePoints(points, opts);
     close();
     if (!tokens.length) {
-      setStatus("No gesture detected.", true);
+      setStatus(t("statusNoGesture", "No gesture detected."), true);
       return;
     }
     targetInput.value = GestureCore.formatSequence(tokens);
     highlightConflicts();
-    setStatus("Gesture recorded.");
+    setStatus(t("statusGestureRecorded", "Gesture recorded."));
   });
   window.addEventListener("keydown", onKey, true);
 }
@@ -242,7 +272,7 @@ function createActionSelect(selected) {
   ACTIONS.forEach((action) => {
     const option = document.createElement("option");
     option.value = action.value;
-    option.textContent = action.label;
+    option.textContent = t("action_" + action.value, action.label);
     if (action.value === selected) {
       option.selected = true;
     }
@@ -269,11 +299,11 @@ function addRow(sequence, action) {
   const removeCell = document.createElement("td");
   removeCell.className = "row-actions";
   const drawButton = document.createElement("button");
-  drawButton.textContent = "Draw";
+  drawButton.textContent = t("draw", "Draw");
   drawButton.className = "ghost";
   drawButton.addEventListener("click", () => recordGesture(input));
   const removeButton = document.createElement("button");
-  removeButton.textContent = "Remove";
+  removeButton.textContent = t("remove", "Remove");
   removeButton.addEventListener("click", () => {
     row.remove();
     highlightConflicts();
@@ -307,6 +337,7 @@ function fillSettings(values) {
   cornerToleranceInput.value = settings.cornerToleranceDeg;
   showDirectionInput.checked = Boolean(settings.showDirection);
   testModeInput.checked = Boolean(settings.testMode);
+  cheatSheetInput.checked = Boolean(settings.showCheatSheet);
   debugLogInput.checked = Boolean(settings.debugLog);
   trailColorInput.value = settings.trailColor;
   trailWidthInput.value = settings.trailWidth;
@@ -334,6 +365,7 @@ function collectSettings() {
       Number(cornerToleranceInput.value) || DEFAULT_SETTINGS.cornerToleranceDeg,
     showDirection: showDirectionInput.checked,
     testMode: testModeInput.checked,
+    showCheatSheet: cheatSheetInput.checked,
     debugLog: debugLogInput.checked,
     trailColor: trailColorInput.value || DEFAULT_SETTINGS.trailColor,
     trailWidth: Number(trailWidthInput.value) || DEFAULT_SETTINGS.trailWidth,
@@ -375,9 +407,12 @@ function saveOptions() {
     const conflictKeys = highlightConflicts();
     if (conflictKeys.size) {
       const list = Array.from(conflictKeys).join(", ");
-      setStatus(`Saved. Duplicate gesture(s): ${list}`, true);
+      setStatus(
+        t("statusDuplicate", `Saved. Duplicate gesture(s): ${list}`, [list]),
+        true,
+      );
     } else {
-      setStatus("Saved.");
+      setStatus(t("statusSaved", "Saved."));
     }
   });
 }
@@ -385,7 +420,7 @@ function saveOptions() {
 function saveSettingsOnly() {
   const settings = collectSettings();
   chrome.storage.sync.set({ settings }, () => {
-    setStatus("Settings saved.");
+    setStatus(t("statusSettingsSaved", "Settings saved."));
   });
 }
 
@@ -406,7 +441,7 @@ function applyPreset() {
   }
   setRows(preset.gestures);
   highlightConflicts();
-  setStatus("Preset loaded.");
+  setStatus(t("statusPresetLoaded", "Preset loaded."));
 }
 
 function exportSettings() {
@@ -422,7 +457,7 @@ function exportSettings() {
       link.download = "gesthero_settings.json";
       link.click();
       URL.revokeObjectURL(url);
-      setStatus("Exported.");
+      setStatus(t("statusExported", "Exported."));
     },
   );
 }
@@ -441,10 +476,10 @@ function importSettings(file) {
       const settings = { ...DEFAULT_SETTINGS, ...(data.settings || {}) };
       chrome.storage.sync.set({ gestures, settings }, () => {
         loadOptions();
-        setStatus("Imported.");
+        setStatus(t("statusImported", "Imported."));
       });
     } catch {
-      setStatus("Import failed.");
+      setStatus(t("statusImportFailed", "Import failed."));
     }
   };
   reader.readAsText(file);
@@ -453,12 +488,12 @@ function importSettings(file) {
 function exportDebugLog() {
   chrome.runtime.sendMessage({ type: "getDebugLog" }, (response) => {
     if (chrome.runtime.lastError) {
-      setStatus("Debug log unavailable.");
+      setStatus(t("statusDebugUnavailable", "Debug log unavailable."));
       return;
     }
     const events = (response && response.events) || [];
     if (!events.length) {
-      setStatus("No events collected yet.");
+      setStatus(t("statusNoEvents", "No events collected yet."));
     }
     const blob = new Blob([JSON.stringify({ events }, null, 2)], {
       type: "application/json",
@@ -469,17 +504,17 @@ function exportDebugLog() {
     link.download = "gesture_debug_log.json";
     link.click();
     URL.revokeObjectURL(url);
-    setStatus("Debug log exported.");
+    setStatus(t("statusDebugExported", "Debug log exported."));
   });
 }
 
 function clearDebugLog() {
   chrome.runtime.sendMessage({ type: "clearDebugLog" }, () => {
     if (chrome.runtime.lastError) {
-      setStatus("Debug log unavailable.");
+      setStatus(t("statusDebugUnavailable", "Debug log unavailable."));
       return;
     }
-    setStatus("Debug log cleared.");
+    setStatus(t("statusDebugCleared", "Debug log cleared."));
   });
 }
 
@@ -494,5 +529,6 @@ importFile.addEventListener("change", () => {
   importSettings(importFile.files[0]);
 });
 
+applyI18n();
 populatePresets();
 loadOptions();

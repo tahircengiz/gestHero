@@ -51,6 +51,9 @@ PNG'ler korunur.
 - Tab kontrolu, zoom, fullscreen, link/selection aksiyonlari
 - Presetler, import/export, site bazli devre disi
 - Renkli trail ve debug log
+- "Draw" ile fareyle cizerek gesture kaydetme; cakisma uyarisi
+- Cheat-sheet overlay (gesture cizilirken hareket listesi)
+- Cok dilli arayuz (EN/TR, tarayici diline gore) ve koyu mod
 
 ## Kullanim
 
