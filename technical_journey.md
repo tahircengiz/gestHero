@@ -1,6 +1,7 @@
 # Technical Journal
 
 ## 2025-12-29
+
 - Created this journal to track all work.
 - GitHub private repo setup requested; using default repo name `prj_GestureHero` unless changed.
 - Initialized local git repository and renamed default branch to `main`.
@@ -79,3 +80,12 @@
 - This is the production-proven pattern used by all major gesture extensions. It works because: (1) short right-click has no gesture activation, no dynamic listeners added, menu opens naturally, (2) long hold + movement activates gesture, adds dynamic listeners that block all subsequent contextmenu events.
 - **Critical bug fix**: On macOS, contextmenu event fires during mousedown while still in `pendingGesture` state (before gesture activates). This opened the menu BUT left pending state active, so mouseup or timer would still trigger gesture. Fixed by adding `pendingGesture` check in `onContextMenu()` - if pending, cancel the entire gesture state (clear timer, reset flags) and allow menu to open. This prevents gesture from activating after menu is already shown.
 - Updated both `gestHero/content.js` and `build_extension.py` with complete dynamic listener implementation and pending state cancellation fix.
+
+## 2026-05-29
+
+- Added a project analysis report (`PROJE_ANALIZ_RAPORU.md`) covering issues, fixes, and improvement suggestions.
+- **Phase 1 (technical debt, no behaviour change):**
+  - S2 — Branding aligned to "GestHero" across `manifest.json` (name + default_title) and the settings export filename (`gesthero_settings.json`).
+  - S1 — Removed the ~2000 lines of source embedded as Python strings in `build_extension.py`. `gestHero/` is now the single source of truth; the build script only refreshes SVG→PNG icons and produces a distributable `gestHero.zip`.
+  - S3 — Extracted the pure gesture helpers into `gestHero/gestures-core.js` (shared by content script, options page, and tests; exposed as both a global and a CommonJS module). Added `node:test` unit tests under `tests/`, ESLint + Prettier configs, `package.json` scripts, and a GitHub Actions CI workflow (lint + format + test + build).
+  - Tooling artefacts (`node_modules/`, `gestHero.zip`) added to `.gitignore`.

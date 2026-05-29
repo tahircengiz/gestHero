@@ -79,10 +79,7 @@ function moveTab(offset, tab) {
       return;
     }
     const maxIndex = tabs.length - 1;
-    const targetIndex = Math.min(
-      maxIndex,
-      Math.max(0, tab.index + offset)
-    );
+    const targetIndex = Math.min(maxIndex, Math.max(0, tab.index + offset));
     chrome.tabs.move(tab.id, { index: targetIndex });
   });
 }

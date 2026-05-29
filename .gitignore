@@ -1,3 +1,5 @@
 .history/
 .vscode/
 SimpleGestures/
+node_modules/
+gestHero.zip

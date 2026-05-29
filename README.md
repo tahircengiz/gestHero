@@ -14,18 +14,35 @@ de desteklenir.
 4. Developer mode ac
 5. **Load unpacked** -> `gestHero/` klasorunu sec
 
-## Uretim (Guncel Dosya Uretmek Icin)
+## Gelistirme
 
-1. Proje klasorunde:
-   ```bash
-   python3 build_extension.py
-   ```
-2. `gestHero/` klasoru guncellenir
-3. Tarayicida extension **Reload** edilir
+Eklentinin tek dogruluk kaynagi (single source of truth) `gestHero/` klasorudur;
+dosyalar dogrudan duzenlenir. Paylasilan saf gesture mantigi
+`gestHero/gestures-core.js` icinde olup hem content script hem options sayfasi hem
+de testler tarafindan kullanilir.
+
+```bash
+npm install        # gelistirme bagimliliklarini kurar (eslint, prettier)
+npm test           # node:test ile birim testleri (cekirdek gesture mantigi)
+npm run lint       # eslint
+npm run format     # prettier ile bicimlendirir
+```
+
+CI (GitHub Actions) her push/PR'de lint + format + test + build calistirir.
+
+## Paketleme (Dagitim Icin)
+
+```bash
+python3 build_extension.py        # ikonlari yeniler ve gestHero.zip uretir
+python3 build_extension.py --no-zip
+```
+
+Bu komut **JS/HTML uretmez**; yalnizca (1) `gestHero.svg`'den PNG ikonlari
+yenilemeye calisir ve (2) magaza/dagitim icin `gestHero.zip` olusturur.
 
 Not: Ikonlar icin `gestHero.svg` varsa PNG uretmeye calisir. `cairosvg`,
-`rsvg-convert` veya macOS `sips` varsa otomatik donusur. Yoksa yerel PNG
-fallback kullanilir.
+`rsvg-convert` veya macOS `sips` varsa otomatik donusur. Yoksa mevcut commit'li
+PNG'ler korunur.
 
 ## Ozellikler
 

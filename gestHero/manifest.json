@@ -1,22 +1,15 @@
 {
-  "name": "Simple Gestures",
+  "name": "GestHero",
   "description": "Lightweight mouse gesture controls.",
   "version": "1.0.0",
   "manifest_version": 3,
-  "permissions": [
-    "storage",
-    "tabs",
-    "sessions",
-    "windows"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "permissions": ["storage", "tabs", "sessions", "windows"],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Simple Gestures",
+    "default_title": "GestHero",
     "default_icon": {
       "16": "icon16.png",
       "48": "icon48.png",
@@ -31,12 +24,8 @@
   "options_page": "options.html",
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "content.js"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["gestures-core.js", "content.js"],
       "run_at": "document_idle"
     }
   ]

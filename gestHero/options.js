@@ -104,8 +104,6 @@ const PRESETS = [
   },
 ];
 
-const VALID_TOKENS = new Set(["U", "D", "L", "R", "UR", "UL", "DR", "DL"]);
-
 const tableBody = document.getElementById("gesture-rows");
 const addRowButton = document.getElementById("add-row");
 const saveButton = document.getElementById("save");
@@ -142,25 +140,10 @@ function setStatus(text) {
   }, 1500);
 }
 
-function tokenizeSequence(value) {
-  const raw = String(value || "").trim().toUpperCase();
-  if (!raw) {
-    return [];
-  }
-  if (/[\s,>-]/.test(raw)) {
-    return raw.split(/[\s,>-]+/).filter(Boolean);
-  }
-  if (raw.length === 2 && VALID_TOKENS.has(raw)) {
-    return [raw];
-  }
-  return raw.split("");
-}
-
 function normalizeSequence(sequence) {
-  return tokenizeSequence(sequence)
-    .map((token) => token.replace(/[^UDLR]/g, ""))
-    .filter((token) => VALID_TOKENS.has(token))
-    .join(" ");
+  // Options keeps the un-collapsed form (e.g. "U U R") for display; the content
+  // script collapses repeats when building its lookup map.
+  return GestureCore.sanitizeTokens(sequence).join(" ");
 }
 
 function createActionSelect(selected) {
@@ -212,7 +195,8 @@ function setRows(gestures) {
 
 function fillSettings(values) {
   const settings = { ...DEFAULT_SETTINGS, ...(values || {}) };
-  mouseButtonSelect.value = settings.mouseButton || DEFAULT_SETTINGS.mouseButton;
+  mouseButtonSelect.value =
+    settings.mouseButton || DEFAULT_SETTINGS.mouseButton;
   holdDelayInput.value = settings.holdDelayMs;
   minDistanceInput.value = settings.minDistance;
   minSpeedInput.value = settings.minSpeed;
@@ -241,12 +225,12 @@ function collectSettings() {
     minDistance: Number(minDistanceInput.value) || DEFAULT_SETTINGS.minDistance,
     minSpeed: Number(minSpeedInput.value) || DEFAULT_SETTINGS.minSpeed,
     diagonalEnabled: diagonalEnabledInput.checked,
-    diagonalBias: Number(diagonalBiasInput.value) || DEFAULT_SETTINGS.diagonalBias,
+    diagonalBias:
+      Number(diagonalBiasInput.value) || DEFAULT_SETTINGS.diagonalBias,
     cornerMinLength:
       Number(cornerMinLengthInput.value) || DEFAULT_SETTINGS.cornerMinLength,
     cornerToleranceDeg:
-      Number(cornerToleranceInput.value) ||
-      DEFAULT_SETTINGS.cornerToleranceDeg,
+      Number(cornerToleranceInput.value) || DEFAULT_SETTINGS.cornerToleranceDeg,
     showDirection: showDirectionInput.checked,
     testMode: testModeInput.checked,
     debugLog: debugLogInput.checked,
@@ -266,7 +250,7 @@ function loadOptions() {
     (data) => {
       setRows(data.gestures || DEFAULT_GESTURES);
       fillSettings(data.settings || DEFAULT_SETTINGS);
-    }
+    },
   );
 }
 
@@ -326,11 +310,11 @@ function exportSettings() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "simple_gestures_settings.json";
+      link.download = "gesthero_settings.json";
       link.click();
       URL.revokeObjectURL(url);
       setStatus("Exported.");
-    }
+    },
   );
 }
 
@@ -350,7 +334,7 @@ function importSettings(file) {
         loadOptions();
         setStatus("Imported.");
       });
-    } catch (error) {
+    } catch {
       setStatus("Import failed.");
     }
   };

@@ -29,15 +29,18 @@ const DEFAULT_SETTINGS = {
   searchUrl: "https://www.google.com/search?q=%s",
 };
 
-const VALID_TOKENS = new Set(["U", "D", "L", "R", "UR", "UL", "DR", "DL"]);
+const {
+  sanitizeTokens,
+  collapseRepeats,
+  simplifyTokens,
+  formatSequence,
+  getDirection,
+  getAxisDistance,
+} = GestureCore;
 const BUTTON_MAP = { left: 0, middle: 1, right: 2 };
 const BUTTON_MASK_MAP = { 0: 1, 1: 4, 2: 2 };
 const IS_MAC = /Mac/i.test(navigator.platform);
-const ACTIONS_LOCAL = new Set([
-  "scroll_top",
-  "scroll_bottom",
-  "copy_link_url",
-]);
+const ACTIONS_LOCAL = new Set(["scroll_top", "scroll_bottom", "copy_link_url"]);
 const LINK_ACTIONS = new Set([
   "open_link_new_tab",
   "open_link_background_tab",
@@ -81,71 +84,8 @@ function disableContextMenuPrevention() {
   logDebug("prevention_disabled", null);
 }
 
-function tokenizeSequence(value) {
-  const raw = String(value || "").trim().toUpperCase();
-  if (!raw) {
-    return [];
-  }
-  if (/[\s,>-]/.test(raw)) {
-    return raw.split(/[\s,>-]+/).filter(Boolean);
-  }
-  if (raw.length === 2 && VALID_TOKENS.has(raw)) {
-    return [raw];
-  }
-  return raw.split("");
-}
-
-function collapseRepeats(tokens) {
-  const result = [];
-  let last = null;
-  tokens.forEach((token) => {
-    if (token && token !== last) {
-      result.push(token);
-      last = token;
-    }
-  });
-  return result;
-}
-
-function simplifyTokens(tokens) {
-  const collapsed = collapseRepeats(tokens);
-  const result = [];
-  for (let i = 0; i < collapsed.length; i += 1) {
-    const token = collapsed[i];
-    if (!token || token.length !== 2) {
-      result.push(token);
-      continue;
-    }
-    const prev = result[result.length - 1];
-    const next = collapsed[i + 1];
-    const prevCardinal = prev && prev.length === 1;
-    const nextCardinal = next && next.length === 1;
-    const matchesPrev = prevCardinal && token.includes(prev);
-    const matchesNext = nextCardinal && token.includes(next);
-    if (matchesPrev && matchesNext) {
-      continue;
-    }
-    if (matchesPrev && !nextCardinal) {
-      const replacement = token.replace(prev, "");
-      if (replacement.length === 1) {
-        result.push(replacement);
-        continue;
-      }
-    }
-    result.push(token);
-  }
-  return result;
-}
-
 function normalizeSequence(sequence) {
-  const tokens = tokenizeSequence(sequence)
-    .map((token) => token.replace(/[^UDLR]/g, ""))
-    .filter((token) => VALID_TOKENS.has(token));
-  return collapseRepeats(tokens).join(" ");
-}
-
-function formatSequence(tokens) {
-  return tokens.join(" ");
+  return collapseRepeats(sanitizeTokens(sequence)).join(" ");
 }
 
 function buildGestureMap(gestures) {
@@ -225,7 +165,7 @@ function loadSettings() {
     (data) => {
       buildGestureMap(data.gestures || DEFAULT_GESTURES);
       applySettings(data.settings || DEFAULT_SETTINGS);
-    }
+    },
   );
 }
 
@@ -383,61 +323,6 @@ function destroyCanvas() {
   ctx = null;
 }
 
-function getDirection(dx, dy) {
-  const absX = Math.abs(dx);
-  const absY = Math.abs(dy);
-  if (absX === 0 && absY === 0) {
-    return null;
-  }
-  if (!settings.diagonalEnabled) {
-    return absX >= absY ? (dx > 0 ? "R" : "L") : dy > 0 ? "D" : "U";
-  }
-  const bias = Math.max(1, Number(settings.diagonalBias) || 1);
-  const tolerance = Math.max(0, Number(settings.cornerToleranceDeg) || 0);
-  if (absY === 0) {
-    return dx > 0 ? "R" : "L";
-  }
-  if (absX === 0) {
-    return dy > 0 ? "D" : "U";
-  }
-  const angle = (Math.atan2(absY, absX) * 180) / Math.PI;
-  if (angle <= tolerance) {
-    return dx > 0 ? "R" : "L";
-  }
-  if (angle >= 90 - tolerance) {
-    return dy > 0 ? "D" : "U";
-  }
-  if (absX >= absY * bias) {
-    return dx > 0 ? "R" : "L";
-  }
-  if (absY >= absX * bias) {
-    return dy > 0 ? "D" : "U";
-  }
-  if (dx > 0 && dy > 0) {
-    return "DR";
-  }
-  if (dx > 0 && dy < 0) {
-    return "UR";
-  }
-  if (dx < 0 && dy > 0) {
-    return "DL";
-  }
-  return "UL";
-}
-
-function getAxisDistance(direction, absX, absY) {
-  if (!direction) {
-    return 0;
-  }
-  if (direction === "L" || direction === "R") {
-    return absX;
-  }
-  if (direction === "U" || direction === "D") {
-    return absY;
-  }
-  return Math.min(absX, absY);
-}
-
 function findLinkHref(target) {
   let element = target;
   if (element && element.nodeType === 3) {
@@ -474,7 +359,7 @@ function copyText(text) {
   try {
     document.execCommand("copy");
     return true;
-  } catch (error) {
+  } catch {
     return false;
   } finally {
     textarea.remove();
@@ -666,7 +551,8 @@ function processGestureMove(x, y, now) {
   const segmentDistance = Math.hypot(dxSegment, dySegment);
   const deltaTime = now - lastMoveTime;
   const speed = deltaTime > 0 ? distance / (deltaTime / 1000) : 0;
-  const minDistance = Number(settings.minDistance) || DEFAULT_SETTINGS.minDistance;
+  const minDistance =
+    Number(settings.minDistance) || DEFAULT_SETTINGS.minDistance;
   const minSpeed = Number(settings.minSpeed) || 0;
   if (distance < minDistance && speed < minSpeed) {
     return;
@@ -674,7 +560,7 @@ function processGestureMove(x, y, now) {
   gestureUsed = true;
   const absSegmentX = Math.abs(dxSegment);
   const absSegmentY = Math.abs(dySegment);
-  const direction = getDirection(dxSegment, dySegment);
+  const direction = getDirection(dxSegment, dySegment, settings);
   if (direction) {
     const lastDirection = directions[directions.length - 1];
     const cornerMinLength =
@@ -743,7 +629,9 @@ function handleGesture(sequence) {
   const action = gestureMap.get(sequence);
   if (settings.testMode) {
     flashLabel(
-      action ? `Gesture ${sequence} -> ${action}` : `Gesture ${sequence} -> none`
+      action
+        ? `Gesture ${sequence} -> ${action}`
+        : `Gesture ${sequence} -> none`,
     );
     return;
   }
@@ -823,14 +711,17 @@ function onMouseDown(event) {
     const delay = Number.isNaN(delayValue)
       ? DEFAULT_SETTINGS.holdDelayMs
       : delayValue;
-    holdTimer = setTimeout(() => {
-      if (!pendingGesture || gestureActive) {
-        return;
-      }
-      if (activateGesture(startX, startY, "hold")) {
-        replayPendingPoints();
-      }
-    }, Math.max(0, delay));
+    holdTimer = setTimeout(
+      () => {
+        if (!pendingGesture || gestureActive) {
+          return;
+        }
+        if (activateGesture(startX, startY, "hold")) {
+          replayPendingPoints();
+        }
+      },
+      Math.max(0, delay),
+    );
     return;
   }
   activateGesture(startX, startY, "immediate");
@@ -884,7 +775,10 @@ function onMouseUp(event) {
   if (!gestureActive && !pendingGesture) {
     return;
   }
-  if (gestureButton !== 2 && isGestureButtonPressed(gestureButton, event.buttons)) {
+  if (
+    gestureButton !== 2 &&
+    isGestureButtonPressed(gestureButton, event.buttons)
+  ) {
     return;
   }
   if (pendingGesture && !gestureActive) {

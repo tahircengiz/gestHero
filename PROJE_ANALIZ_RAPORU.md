@@ -28,13 +28,13 @@ Aşağıdaki öneriler kod davranışını değiştirmeden bakım maliyetini cid
 
 ## 2. Mimari Genel Bakış
 
-| Bileşen | Dosya | Satır | Sorumluluk |
-|---|---|---:|---|
-| Build/üretici | `build_extension.py` | 2279 | Eklenti dosyalarını gömülü string'lerden üretir, SVG→PNG ikon dönüşümü |
-| Content script | `gestHero/content.js` | 1030 | Mouse olayları, gesture algılama, çizim, context-menu yönetimi |
-| Service worker | `gestHero/background.js` | 286 | Sekme/pencere/zoom aksiyonları, debug log toplama |
-| Ayarlar UI | `gestHero/options.html` / `options.js` | 364 / 405 | Gesture tablosu, ayarlar, preset/import/export |
-| Manifest | `gestHero/manifest.json` | 43 | MV3 tanımı |
+| Bileşen        | Dosya                                  |     Satır | Sorumluluk                                                             |
+| -------------- | -------------------------------------- | --------: | ---------------------------------------------------------------------- |
+| Build/üretici  | `build_extension.py`                   |      2279 | Eklenti dosyalarını gömülü string'lerden üretir, SVG→PNG ikon dönüşümü |
+| Content script | `gestHero/content.js`                  |      1030 | Mouse olayları, gesture algılama, çizim, context-menu yönetimi         |
+| Service worker | `gestHero/background.js`               |       286 | Sekme/pencere/zoom aksiyonları, debug log toplama                      |
+| Ayarlar UI     | `gestHero/options.html` / `options.js` | 364 / 405 | Gesture tablosu, ayarlar, preset/import/export                         |
+| Manifest       | `gestHero/manifest.json`               |        43 | MV3 tanımı                                                             |
 
 **Veri akışı:** `options.js` → `chrome.storage.sync` → `content.js` (gesture algılar) →
 `chrome.runtime.sendMessage` → `background.js` (aksiyonu yürütür). Temiz ve standart.
@@ -44,7 +44,7 @@ Aşağıdaki öneriler kod davranışını değiştirmeden bakım maliyetini cid
 ## 3. Güçlü Yönler
 
 - **Sıfır bağımlılık, sıfır build-toolchain zorunluluğu.** Klasör doğrudan `Load
-  unpacked` ile yüklenebiliyor.
+unpacked` ile yüklenebiliyor.
 - **Net sorumluluk ayrımı** ve tutarlı kod stili.
 - **Saf (pure) ve test edilmeye çok uygun fonksiyonlar**: `tokenizeSequence`,
   `collapseRepeats`, `simplifyTokens`, `normalizeSequence`, `getDirection`.
@@ -74,6 +74,7 @@ birebir aynı (drift yok — doğrulandı), ama:
 
 **Çözüm (önerilen):** Tek bir doğruluk kaynağı (single source of truth) belirle.
 `gestHero/` altındaki dosyalar canonical olsun. `build_extension.py` yalnızca:
+
 1. Gerçek dosyaları kopyalasın/derlesin (string gömme yerine `shutil.copy`),
 2. SVG→PNG ikon üretsin,
 3. İsteğe bağlı dağıtım için `.zip` paketi oluştursun.
@@ -101,6 +102,7 @@ hata-düzeltme zinciri (özellikle 2025-12-29/30 kayıtları), regresyona en aç
 tam burası olduğunu gösteriyor. Saf fonksiyonlar test edilmeye hazır.
 
 **Çözüm:**
+
 - `tokenizeSequence`, `collapseRepeats`, `simplifyTokens`, `normalizeSequence`,
   `getDirection`, `getAxisDistance` için birim testleri (Node + Vitest/Jest; DOM
   gerekmez — bu fonksiyonları küçük bir modüle ayırıp hem content.js hem teste import et).
@@ -191,18 +193,21 @@ Mevcut mimariye doğal oturanlar:
 
 ## 6. Önerilen Yol Haritası
 
-**Faz 1 — Teknik borç (davranış değişmeden):**
-- [ ] S2: İsim/branding'i tek değere hizala.
-- [ ] S1: Build script'i tek-kaynak modeline geçir (kopyala+zip), gömülü kodu sil.
-- [ ] S3: ESLint/Prettier + saf fonksiyonlar için birim testleri + GitHub Actions CI.
+**Faz 1 — Teknik borç (davranış değişmeden):** ✅ _Tamamlandı (2026-05-29)_
+
+- [x] S2: İsim/branding'i tek değere ("GestHero") hizalandı.
+- [x] S1: Build script tek-kaynak modeline geçirildi (ikon + zip); ~2000 satır gömülü kod silindi.
+- [x] S3: `gestures-core.js` çekirdeği + `node:test` birim testleri + ESLint/Prettier + GitHub Actions CI eklendi.
 
 **Faz 2 — Sağlamlaştırma:**
+
 - [ ] S4: Debug logunu kalıcılaştır (`storage.local`).
 - [ ] S5: `lastError` kontrollerini ekle.
 - [ ] S7: `userAgentData` geçişi.
 - [ ] S6: İzin gerekçesi ve iframe davranışını dokümante et.
 
 **Faz 3 — Ürün geliştirme:**
+
 - [ ] S8: `getDirection` sadeleştirme (testlerle korumalı).
 - [ ] Bölüm 5'ten görsel gesture editörü + cheat-sheet overlay'i.
 - [ ] S9/S10: i18n, CHANGELOG, sürüm bump.
@@ -220,5 +225,5 @@ Düşük efor / yüksek etki, hemen yapılabilir:
 
 ---
 
-*Not: Bu rapor yalnızca analiz amaçlıdır; mevcut çalışan koda dokunmadan hazırlanmıştır.
-Önerilerin uygulanması için her madde bağımsız olarak ele alınabilir.*
+_Not: Bu rapor yalnızca analiz amaçlıdır; mevcut çalışan koda dokunmadan hazırlanmıştır.
+Önerilerin uygulanması için her madde bağımsız olarak ele alınabilir._
