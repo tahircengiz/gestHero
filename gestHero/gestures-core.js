@@ -87,6 +87,12 @@
   // Resolve the gesture direction for a movement delta.
   // `opts` carries the relevant settings (diagonalEnabled / diagonalBias /
   // cornerToleranceDeg) so this function stays pure and testable.
+  //
+  // Model: the movement angle (0..90 deg from the horizontal axis) decides the
+  // direction. A tolerance cone around each axis snaps to a cardinal; the
+  // diagonal band in between yields a diagonal unless a strong axis `bias`
+  // still pulls it back to a cardinal. The `bias` knob is intentionally kept
+  // for backwards compatibility with saved settings.
   function getDirection(dx, dy, opts) {
     var options = opts || {};
     var absX = Math.abs(dx);
@@ -94,40 +100,36 @@
     if (absX === 0 && absY === 0) {
       return null;
     }
+    var horizontal = dx > 0 ? "R" : "L";
+    var vertical = dy > 0 ? "D" : "U";
     if (!options.diagonalEnabled) {
-      return absX >= absY ? (dx > 0 ? "R" : "L") : dy > 0 ? "D" : "U";
+      return absX >= absY ? horizontal : vertical;
     }
-    var bias = Math.max(1, Number(options.diagonalBias) || 1);
-    var tolerance = Math.max(0, Number(options.cornerToleranceDeg) || 0);
     if (absY === 0) {
-      return dx > 0 ? "R" : "L";
+      return horizontal;
     }
     if (absX === 0) {
-      return dy > 0 ? "D" : "U";
+      return vertical;
     }
     var angle = (Math.atan2(absY, absX) * 180) / Math.PI;
+    var tolerance = Math.max(0, Number(options.cornerToleranceDeg) || 0);
     if (angle <= tolerance) {
-      return dx > 0 ? "R" : "L";
+      return horizontal;
     }
     if (angle >= 90 - tolerance) {
-      return dy > 0 ? "D" : "U";
+      return vertical;
     }
+    var bias = Math.max(1, Number(options.diagonalBias) || 1);
     if (absX >= absY * bias) {
-      return dx > 0 ? "R" : "L";
+      return horizontal;
     }
     if (absY >= absX * bias) {
-      return dy > 0 ? "D" : "U";
+      return vertical;
     }
-    if (dx > 0 && dy > 0) {
-      return "DR";
+    if (dx > 0) {
+      return dy > 0 ? "DR" : "UR";
     }
-    if (dx > 0 && dy < 0) {
-      return "UR";
-    }
-    if (dx < 0 && dy > 0) {
-      return "DL";
-    }
-    return "UL";
+    return dy > 0 ? "DL" : "UL";
   }
 
   function getAxisDistance(direction, absX, absY) {
@@ -143,6 +145,80 @@
     return Math.min(absX, absY);
   }
 
+  // Canonical lookup key for matching a gesture: sanitised + repeats collapsed
+  // (e.g. "U U R" and "u>u>r" both become "U R"). The content script uses this
+  // to build its gesture map, so conflict detection must use the same key.
+  function normalizeForMatch(value) {
+    return collapseRepeats(sanitizeTokens(value)).join(" ");
+  }
+
+  // Detect gesture rows whose canonical sequence collides (the later one would
+  // silently win in the lookup map). Returns [{ sequence, actions: [...] }].
+  function findConflicts(gestures) {
+    var byKey = new Map();
+    (gestures || []).forEach(function (item) {
+      if (!item) {
+        return;
+      }
+      var key = normalizeForMatch(item.sequence);
+      if (!key) {
+        return;
+      }
+      if (!byKey.has(key)) {
+        byKey.set(key, []);
+      }
+      byKey.get(key).push(item.action);
+    });
+    var conflicts = [];
+    byKey.forEach(function (actions, key) {
+      if (actions.length > 1) {
+        conflicts.push({ sequence: key, actions: actions });
+      }
+    });
+    return conflicts;
+  }
+
+  // Stateless recogniser turning a stream of {x, y} points into a simplified
+  // token sequence. Shared by the options "draw to record" tool; it mirrors the
+  // content script's segment-commit thresholds (without live speed gating).
+  function recognizePoints(points, opts) {
+    var options = opts || {};
+    var pts = points || [];
+    if (pts.length < 2) {
+      return [];
+    }
+    var minDistance = Number(options.minDistance) || 20;
+    var cornerMinLength = Number(options.cornerMinLength) || 18;
+    var directions = [];
+    var segStartX = pts[0].x;
+    var segStartY = pts[0].y;
+    for (var i = 1; i < pts.length; i += 1) {
+      var dx = pts[i].x - segStartX;
+      var dy = pts[i].y - segStartY;
+      var direction = getDirection(dx, dy, options);
+      if (!direction) {
+        continue;
+      }
+      var last = directions[directions.length - 1];
+      var axisDistance = getAxisDistance(direction, Math.abs(dx), Math.abs(dy));
+      var committed = false;
+      if (!last) {
+        if (axisDistance >= minDistance) {
+          directions.push(direction);
+          committed = true;
+        }
+      } else if (direction !== last && axisDistance >= cornerMinLength) {
+        directions.push(direction);
+        committed = true;
+      }
+      if (committed) {
+        segStartX = pts[i].x;
+        segStartY = pts[i].y;
+      }
+    }
+    return simplifyTokens(directions);
+  }
+
   var api = {
     VALID_TOKENS: VALID_TOKENS,
     tokenizeSequence: tokenizeSequence,
@@ -152,6 +228,9 @@
     formatSequence: formatSequence,
     getDirection: getDirection,
     getAxisDistance: getAxisDistance,
+    normalizeForMatch: normalizeForMatch,
+    findConflicts: findConflicts,
+    recognizePoints: recognizePoints,
   };
 
   if (typeof module !== "undefined" && module.exports) {

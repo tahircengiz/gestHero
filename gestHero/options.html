@@ -190,6 +190,63 @@
         color: var(--muted);
         font-size: 12px;
       }
+      input.conflict {
+        border-color: #dc2626;
+        background: rgba(220, 38, 38, 0.08);
+      }
+      #status.warn {
+        color: #dc2626;
+      }
+      .record-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        background: rgba(15, 23, 42, 0.35);
+        cursor: crosshair;
+      }
+      .record-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .record-hint {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.78);
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        pointer-events: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161a20;
+          --panel: #1f2530;
+          --text: #e6eaf0;
+          --muted: #9aa6b6;
+          --accent: #5b93ff;
+          --accent-strong: #79a8ff;
+          --border: #2c3440;
+          --shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+        }
+        body {
+          background: radial-gradient(circle at top, #1c222b, #14181e 60%);
+        }
+        th {
+          background: #232a35;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="color"],
+        textarea,
+        select {
+          background: #161a20;
+        }
+      }
     </style>
   </head>
   <body>
@@ -233,7 +290,7 @@
             <tr>
               <th>Sequence</th>
               <th>Action</th>
-              <th>Remove</th>
+              <th>Tools</th>
             </tr>
           </thead>
           <tbody id="gesture-rows"></tbody>
@@ -243,6 +300,10 @@
           <button id="save" class="primary">Save</button>
           <span id="status"></span>
         </div>
+        <p class="hint">
+          "Draw" ile fareyle cizerek sequence doldur. Cakisan (ayni) hareketler
+          kirmizi ile isaretlenir.
+        </p>
         <div class="row">
           <label>
             Preset

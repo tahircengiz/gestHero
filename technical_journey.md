@@ -94,3 +94,9 @@
   - S5 — Added `chrome.runtime.lastError` guards to fire-and-forget `sendMessage` calls in `content.js` and `tabs.sendMessage` in `background.js` to silence "Unchecked runtime.lastError" noise.
   - S7 — `IS_MAC` now prefers `navigator.userAgentData.platform`, falling back to the deprecated `navigator.platform` and then the user-agent string.
   - S6 — Documented permission rationale, top-frame-only injection (no `all_frames`), pointer-input limitation, and debug-log persistence in the README.
+- **Phase 3 (product, partial):**
+  - S8 — Rewrote `getDirection` for readability without changing outputs; added boundary tests. Kept the `diagonalBias` knob intentionally to avoid a breaking settings migration.
+  - Added shared core helpers `normalizeForMatch`, `findConflicts`, and `recognizePoints` (all unit-tested); content script now uses `normalizeForMatch` for its lookup key.
+  - Options page: added a per-row "Draw" recorder (draw a gesture to fill the sequence field, reusing the shared recogniser), duplicate-gesture conflict highlighting + save-time warning, and a `prefers-color-scheme` dark mode.
+  - S10 — Added `CHANGELOG.md`; bumped version to 1.1.0 (manifest + package.json).
+  - Deferred to a follow-up: cheat-sheet overlay and full i18n (`_locales`).

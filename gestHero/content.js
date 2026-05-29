@@ -30,12 +30,11 @@ const DEFAULT_SETTINGS = {
 };
 
 const {
-  sanitizeTokens,
-  collapseRepeats,
   simplifyTokens,
   formatSequence,
   getDirection,
   getAxisDistance,
+  normalizeForMatch,
 } = GestureCore;
 const BUTTON_MAP = { left: 0, middle: 1, right: 2 };
 const BUTTON_MASK_MAP = { 0: 1, 1: 4, 2: 2 };
@@ -94,14 +93,10 @@ function disableContextMenuPrevention() {
   logDebug("prevention_disabled", null);
 }
 
-function normalizeSequence(sequence) {
-  return collapseRepeats(sanitizeTokens(sequence)).join(" ");
-}
-
 function buildGestureMap(gestures) {
   gestureMap = new Map();
   (gestures || []).forEach((item) => {
-    const normalized = normalizeSequence(item.sequence);
+    const normalized = normalizeForMatch(item.sequence);
     if (normalized && item.action) {
       gestureMap.set(normalized, item.action);
     }

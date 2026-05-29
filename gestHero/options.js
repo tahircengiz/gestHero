@@ -133,11 +133,102 @@ const disabledSitesInput = document.getElementById("disabled-sites");
 const exportDebugButton = document.getElementById("export-debug");
 const clearDebugButton = document.getElementById("clear-debug");
 
-function setStatus(text) {
+function setStatus(text, isWarn) {
   status.textContent = text;
-  setTimeout(() => {
-    status.textContent = "";
-  }, 1500);
+  status.classList.toggle("warn", Boolean(isWarn));
+  setTimeout(
+    () => {
+      status.textContent = "";
+      status.classList.remove("warn");
+    },
+    isWarn ? 4000 : 1500,
+  );
+}
+
+// Mark rows whose canonical sequence collides with another row and return the
+// set of conflicting keys.
+function highlightConflicts() {
+  const rows = Array.from(tableBody.querySelectorAll("tr"));
+  const gestures = rows.map((row) => ({
+    sequence: row.querySelector("input").value,
+    action: row.querySelector("select").value,
+  }));
+  const conflictKeys = new Set(
+    GestureCore.findConflicts(gestures).map((item) => item.sequence),
+  );
+  rows.forEach((row) => {
+    const input = row.querySelector("input");
+    const key = GestureCore.normalizeForMatch(input.value);
+    input.classList.toggle("conflict", Boolean(key) && conflictKeys.has(key));
+  });
+  return conflictKeys;
+}
+
+// Fullscreen capture overlay: draw a gesture with the mouse to fill the row's
+// sequence field. Reuses the shared recogniser so it matches live detection.
+function recordGesture(targetInput) {
+  const opts = collectSettings();
+  const overlay = document.createElement("div");
+  overlay.className = "record-overlay";
+  const canvas = document.createElement("canvas");
+  canvas.className = "record-canvas";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const hint = document.createElement("div");
+  hint.className = "record-hint";
+  hint.textContent = "Draw the gesture, release to finish (Esc to cancel)";
+  overlay.appendChild(canvas);
+  overlay.appendChild(hint);
+  document.body.appendChild(overlay);
+
+  const ctx = canvas.getContext("2d");
+  ctx.strokeStyle = opts.trailColor || "#2563eb";
+  ctx.lineWidth = Number(opts.trailWidth) || 3;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+
+  let drawing = false;
+  let points = [];
+
+  function close() {
+    window.removeEventListener("keydown", onKey, true);
+    overlay.remove();
+  }
+  function onKey(event) {
+    if (event.key === "Escape") {
+      close();
+    }
+  }
+  canvas.addEventListener("mousedown", (event) => {
+    drawing = true;
+    points = [{ x: event.clientX, y: event.clientY }];
+    ctx.beginPath();
+    ctx.moveTo(event.clientX, event.clientY);
+  });
+  canvas.addEventListener("mousemove", (event) => {
+    if (!drawing) {
+      return;
+    }
+    points.push({ x: event.clientX, y: event.clientY });
+    ctx.lineTo(event.clientX, event.clientY);
+    ctx.stroke();
+  });
+  canvas.addEventListener("mouseup", () => {
+    if (!drawing) {
+      return;
+    }
+    drawing = false;
+    const tokens = GestureCore.recognizePoints(points, opts);
+    close();
+    if (!tokens.length) {
+      setStatus("No gesture detected.", true);
+      return;
+    }
+    targetInput.value = GestureCore.formatSequence(tokens);
+    highlightConflicts();
+    setStatus("Gesture recorded.");
+  });
+  window.addEventListener("keydown", onKey, true);
 }
 
 function normalizeSequence(sequence) {
@@ -167,17 +258,27 @@ function addRow(sequence, action) {
   const input = document.createElement("input");
   input.type = "text";
   input.value = sequence || "";
+  input.addEventListener("input", highlightConflicts);
   seqCell.appendChild(input);
 
   const actionCell = document.createElement("td");
   const select = createActionSelect(action || ACTIONS[0].value);
+  select.addEventListener("change", highlightConflicts);
   actionCell.appendChild(select);
 
   const removeCell = document.createElement("td");
   removeCell.className = "row-actions";
+  const drawButton = document.createElement("button");
+  drawButton.textContent = "Draw";
+  drawButton.className = "ghost";
+  drawButton.addEventListener("click", () => recordGesture(input));
   const removeButton = document.createElement("button");
   removeButton.textContent = "Remove";
-  removeButton.addEventListener("click", () => row.remove());
+  removeButton.addEventListener("click", () => {
+    row.remove();
+    highlightConflicts();
+  });
+  removeCell.appendChild(drawButton);
   removeCell.appendChild(removeButton);
 
   row.appendChild(seqCell);
@@ -250,6 +351,7 @@ function loadOptions() {
     (data) => {
       setRows(data.gestures || DEFAULT_GESTURES);
       fillSettings(data.settings || DEFAULT_SETTINGS);
+      highlightConflicts();
     },
   );
 }
@@ -270,7 +372,13 @@ function saveOptions() {
     .filter((item) => item.sequence);
   const settings = collectSettings();
   chrome.storage.sync.set({ gestures, settings }, () => {
-    setStatus("Saved.");
+    const conflictKeys = highlightConflicts();
+    if (conflictKeys.size) {
+      const list = Array.from(conflictKeys).join(", ");
+      setStatus(`Saved. Duplicate gesture(s): ${list}`, true);
+    } else {
+      setStatus("Saved.");
+    }
   });
 }
 
@@ -297,6 +405,7 @@ function applyPreset() {
     return;
   }
   setRows(preset.gestures);
+  highlightConflicts();
   setStatus("Preset loaded.");
 }
 

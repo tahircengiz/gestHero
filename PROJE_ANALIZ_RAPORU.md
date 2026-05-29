@@ -206,11 +206,13 @@ Mevcut mimariye doğal oturanlar:
 - [x] S7: `navigator.userAgentData` öncelikli macOS tespitine geçildi (platform fallback'li).
 - [x] S6: İzin gerekçeleri, iframe (top-frame only) ve pointer sınırı README'de dokümante edildi.
 
-**Faz 3 — Ürün geliştirme:**
+**Faz 3 — Ürün geliştirme:** 🟡 _Kısmen tamamlandı (2026-05-29)_
 
-- [ ] S8: `getDirection` sadeleştirme (testlerle korumalı).
-- [ ] Bölüm 5'ten görsel gesture editörü + cheat-sheet overlay'i.
-- [ ] S9/S10: i18n, CHANGELOG, sürüm bump.
+- [x] S8: `getDirection` okunabilirlik için yeniden düzenlendi; davranış korundu, sınır testleri eklendi. (Not: `diagonalBias` knob'u geriye dönük uyumluluk için bilinçli olarak korundu — kaldırmak ayar göçü/kırılma getirirdi.)
+- [x] Görsel gesture editörü (options'ta "Draw" ile çizerek kaydetme) + çakışma uyarısı + koyu mod eklendi. Çekirdeğe `recognizePoints`/`findConflicts`/`normalizeForMatch` (testli).
+- [ ] _Cheat-sheet overlay_ (basılı tutunca olası gesture'ları gösterme) — sonraki adıma bırakıldı.
+- [x] S10: CHANGELOG.md eklendi; sürüm 1.1.0'a yükseltildi (manifest + package.json).
+- [ ] S9: i18n (`_locales`, `chrome.i18n`) — daha büyük UI refactor'ü; sonraki adıma bırakıldı.
 
 ---
 
