@@ -89,3 +89,8 @@
   - S1 — Removed the ~2000 lines of source embedded as Python strings in `build_extension.py`. `gestHero/` is now the single source of truth; the build script only refreshes SVG→PNG icons and produces a distributable `gestHero.zip`.
   - S3 — Extracted the pure gesture helpers into `gestHero/gestures-core.js` (shared by content script, options page, and tests; exposed as both a global and a CommonJS module). Added `node:test` unit tests under `tests/`, ESLint + Prettier configs, `package.json` scripts, and a GitHub Actions CI workflow (lint + format + test + build).
   - Tooling artefacts (`node_modules/`, `gestHero.zip`) added to `.gitignore`.
+- **Phase 2 (hardening):**
+  - S4 — Debug log now persists to `chrome.storage.local` (hydrate on startup, debounced flush, capped at 500) so it survives MV3 service-worker suspension/restart. `getDebugLog`/`clearDebugLog` respond asynchronously.
+  - S5 — Added `chrome.runtime.lastError` guards to fire-and-forget `sendMessage` calls in `content.js` and `tabs.sendMessage` in `background.js` to silence "Unchecked runtime.lastError" noise.
+  - S7 — `IS_MAC` now prefers `navigator.userAgentData.platform`, falling back to the deprecated `navigator.platform` and then the user-agent string.
+  - S6 — Documented permission rationale, top-frame-only injection (no `all_frames`), pointer-input limitation, and debug-log persistence in the README.

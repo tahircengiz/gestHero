@@ -1,7 +1,38 @@
 const DEFAULT_SEARCH_URL = "https://www.google.com/search?q=%s";
 const DEFAULT_ZOOM_STEP = 0.1;
 const DEBUG_LIMIT = 500;
+// MV3 service workers are ephemeral, so the debug log is mirrored to
+// chrome.storage.local. We keep an in-memory copy for fast appends and flush
+// it back with a short debounce.
 let debugEvents = [];
+let hydrated = false;
+let flushTimer = null;
+
+function hydrateDebug(callback) {
+  if (hydrated) {
+    if (callback) callback();
+    return;
+  }
+  chrome.storage.local.get({ debugEvents: [] }, (data) => {
+    if (!chrome.runtime.lastError && Array.isArray(data.debugEvents)) {
+      debugEvents = data.debugEvents;
+    }
+    hydrated = true;
+    if (callback) callback();
+  });
+}
+
+function flushDebug() {
+  if (flushTimer) {
+    return;
+  }
+  flushTimer = setTimeout(() => {
+    flushTimer = null;
+    chrome.storage.local.set({ debugEvents }, () => {
+      void chrome.runtime.lastError;
+    });
+  }, 400);
+}
 
 const getInsertIndex = (tab) =>
   tab && typeof tab.index === "number" ? tab.index + 1 : undefined;
@@ -131,7 +162,13 @@ function navigateHistory(tab, direction) {
     chrome.tabs.goForward(tab.id);
     return;
   }
-  chrome.tabs.sendMessage(tab.id, { type: "historyNavigate", direction });
+  chrome.tabs.sendMessage(
+    tab.id,
+    { type: "historyNavigate", direction },
+    () => {
+      void chrome.runtime.lastError;
+    },
+  );
 }
 
 function toggleFullscreen(tab) {
@@ -251,10 +288,13 @@ function addDebugEvent(event) {
   if (!event) {
     return;
   }
-  debugEvents.push(event);
-  if (debugEvents.length > DEBUG_LIMIT) {
-    debugEvents.shift();
-  }
+  hydrateDebug(() => {
+    debugEvents.push(event);
+    if (debugEvents.length > DEBUG_LIMIT) {
+      debugEvents.shift();
+    }
+    flushDebug();
+  });
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -273,11 +313,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
   if (message.type === "getDebugLog") {
-    sendResponse({ events: debugEvents });
-    return;
+    hydrateDebug(() => sendResponse({ events: debugEvents }));
+    return true; // async response
   }
   if (message.type === "clearDebugLog") {
     debugEvents = [];
-    sendResponse({ ok: true });
+    hydrated = true;
+    if (flushTimer) {
+      clearTimeout(flushTimer);
+      flushTimer = null;
+    }
+    chrome.storage.local.set({ debugEvents: [] }, () => {
+      void chrome.runtime.lastError;
+      sendResponse({ ok: true });
+    });
+    return true; // async response
   }
 });

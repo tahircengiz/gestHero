@@ -68,6 +68,28 @@ PNG'ler korunur.
 2. Gesture dene
 3. **Export Debug Log** ile `gesture_debug_log.json` al
 
+Debug olaylari `chrome.storage.local` icinde tutulur (son 500 olay), bu yuzden
+service worker uyusa/yeniden baslasa bile kayit korunur.
+
+## Izinler
+
+Eklenti su izinleri kullanir:
+
+- `storage` — ayarlari (`storage.sync`) ve debug logunu (`storage.local`) saklamak.
+- `tabs` — sekme acma/kapatma/degistirme, zoom ve gecmis aksiyonlari.
+- `sessions` — "Reopen Closed Tab" (kapatilan sekmeyi geri ac).
+- `windows` — yeni/incognito pencere ve fullscreen kontrolu.
+- `host_permissions: <all_urls>` — gesture'larin her sayfada calisabilmesi icin
+  content script tum sayfalara enjekte edilir. Hicbir sayfa verisi toplanmaz veya
+  disari gonderilmez.
+
+## Davranis Notlari / Sinirlar
+
+- Content script yalnizca **ust cerceveye** (top frame) enjekte edilir;
+  `all_frames` acik degildir, bu yuzden iframe icindeki alanlarda gesture
+  calismaz. (Birden fazla canvas cakismasini onlemek icin bilincli tercih.)
+- Yalnizca fare olaylari desteklenir; dokunmatik/kalem (pointer) girisi kapsam disi.
+
 ## Guvenlik
 
 - Content script tum sayfalarda calisir (`<all_urls>`). Gerekirse "Disable on

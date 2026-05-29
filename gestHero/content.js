@@ -39,7 +39,17 @@ const {
 } = GestureCore;
 const BUTTON_MAP = { left: 0, middle: 1, right: 2 };
 const BUTTON_MASK_MAP = { 0: 1, 1: 4, 2: 2 };
-const IS_MAC = /Mac/i.test(navigator.platform);
+const IS_MAC = (() => {
+  const uaPlatform =
+    navigator.userAgentData && navigator.userAgentData.platform;
+  if (uaPlatform) {
+    return /mac/i.test(uaPlatform);
+  }
+  if (navigator.platform) {
+    return /mac/i.test(navigator.platform);
+  }
+  return /Mac/i.test(navigator.userAgent || "");
+})();
 const ACTIONS_LOCAL = new Set(["scroll_top", "scroll_bottom", "copy_link_url"]);
 const LINK_ACTIONS = new Set([
   "open_link_new_tab",
@@ -156,7 +166,9 @@ function logDebug(type, data) {
   if (debugEvents.length > DEBUG_LIMIT) {
     debugEvents.shift();
   }
-  chrome.runtime.sendMessage({ type: "debugEvent", event });
+  chrome.runtime.sendMessage({ type: "debugEvent", event }, () => {
+    void chrome.runtime.lastError;
+  });
 }
 
 function loadSettings() {
@@ -660,7 +672,9 @@ function handleGesture(sequence) {
   if (gestureContext.selectionText) {
     payload.selectionText = gestureContext.selectionText;
   }
-  chrome.runtime.sendMessage(payload);
+  chrome.runtime.sendMessage(payload, () => {
+    void chrome.runtime.lastError;
+  });
 }
 
 function onMouseDown(event) {

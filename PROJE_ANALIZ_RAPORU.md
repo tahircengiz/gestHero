@@ -199,12 +199,12 @@ Mevcut mimariye doğal oturanlar:
 - [x] S1: Build script tek-kaynak modeline geçirildi (ikon + zip); ~2000 satır gömülü kod silindi.
 - [x] S3: `gestures-core.js` çekirdeği + `node:test` birim testleri + ESLint/Prettier + GitHub Actions CI eklendi.
 
-**Faz 2 — Sağlamlaştırma:**
+**Faz 2 — Sağlamlaştırma:** ✅ _Tamamlandı (2026-05-29)_
 
-- [ ] S4: Debug logunu kalıcılaştır (`storage.local`).
-- [ ] S5: `lastError` kontrollerini ekle.
-- [ ] S7: `userAgentData` geçişi.
-- [ ] S6: İzin gerekçesi ve iframe davranışını dokümante et.
+- [x] S4: Debug logu `chrome.storage.local`'a kalıcılaştırıldı (hydrate + debounce flush).
+- [x] S5: `lastError` kontrolleri eklendi (content.js sendMessage çağrıları + background tabs.sendMessage).
+- [x] S7: `navigator.userAgentData` öncelikli macOS tespitine geçildi (platform fallback'li).
+- [x] S6: İzin gerekçeleri, iframe (top-frame only) ve pointer sınırı README'de dokümante edildi.
 
 **Faz 3 — Ürün geliştirme:**
 
