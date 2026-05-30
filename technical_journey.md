@@ -104,3 +104,20 @@
   - i18n: added `chrome.i18n` + `_locales/en` and `_locales/tr` (96 keys each), `default_locale: en`, and `description: __MSG_appDesc__`. Options strings use `data-i18n` attributes resolved by `applyI18n()`; action labels and status messages localised with English fallbacks.
   - Cheat-sheet overlay: opt-in `showCheatSheet` setting (default off) renders a panel listing configured gestures while drawing; action labels pulled from `chrome.i18n`.
   - Bumped version to 1.2.0 and updated the changelog/README.
+
+## 2026-05-30
+
+- Reviewed the right-click model and corner detection on request.
+- **Corner-detection fix (v1.2.1)**: the segment reference point was only
+  advanced on direction commits, so a long straight leg left a large
+  perpendicular residual and a following corner could be missed (a tall, thin
+  "L" decoded as just "D"). Now the reference is also resampled while a
+  straight leg continues (`axisDistance >= cornerMinLength`), so corners are
+  detected regardless of leg length. Applied to both `content.js` and the
+  shared `recognizePoints`; added regression tests (tall-L, long straight, D R U).
+- **macOS right-click**: reset the `macMenuArmed`/timer state when a gesture
+  activates so back-to-back gestures within 500 ms don't trip the
+  "double right-click = menu" path.
+- Removed the redundant synthetic `triggerContextMenu` dispatch; the trusted
+  contextmenu on Windows/Linux already opens via `allowContextMenuUntil`.
+- Bumped version to 1.2.1.

@@ -201,17 +201,23 @@
       }
       var last = directions[directions.length - 1];
       var axisDistance = getAxisDistance(direction, Math.abs(dx), Math.abs(dy));
-      var committed = false;
+      var advance = false;
       if (!last) {
         if (axisDistance >= minDistance) {
           directions.push(direction);
-          committed = true;
+          advance = true;
         }
-      } else if (direction !== last && axisDistance >= cornerMinLength) {
-        directions.push(direction);
-        committed = true;
+      } else if (direction !== last) {
+        if (axisDistance >= cornerMinLength) {
+          directions.push(direction);
+          advance = true;
+        }
+      } else if (axisDistance >= cornerMinLength) {
+        // Same direction: resample the reference point so the next corner is
+        // detected promptly regardless of how long this straight leg is.
+        advance = true;
       }
-      if (committed) {
+      if (advance) {
         segStartX = pts[i].x;
         segStartY = pts[i].y;
       }

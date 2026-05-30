@@ -4,6 +4,22 @@ Bu projedeki dikkate değer değişiklikler bu dosyada tutulur.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 [Semantic Versioning](https://semver.org/) kullanır.
 
+## [1.2.1] - 2026-05-30
+
+### Fixed
+
+- **Köşe algılama**: Düz bir bacak boyunca segment referans noktası artık
+  yeniden örnekleniyor (resample). Önceden uzun-ince bir "L" (uzun aşağı + kısa
+  sağa) köşeyi kaçırıp yalnızca `D` üretebiliyordu; artık bacak uzunluğundan
+  bağımsız olarak köşe doğru algılanıyor. Hem canlı algılama (`content.js`) hem
+  paylaşılan `recognizePoints` güncellendi; regresyon testleri eklendi.
+- **macOS sağ-tık**: Bir gesture aktive olduğunda "çift sağ-tık = menü" 500ms
+  penceresi sıfırlanıyor; ardışık hızlı gesture'larda menünün yanlışlıkla
+  açılması önlendi.
+- Gereksiz sentetik `triggerContextMenu` çağrısı kaldırıldı (Windows/Linux'ta
+  gerçek contextmenu zaten `allowContextMenuUntil` ile geçiyordu; özel sağ-tık
+  menüsü olan sitelerde çift tetiklemeyi önler).
+
 ## [1.2.0] - 2026-05-29
 
 ### Added

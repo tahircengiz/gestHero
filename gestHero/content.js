@@ -483,8 +483,10 @@ function handlePendingRelease(now, source) {
   if (IS_MAC && gestureButton === 2 && now - downTime < delay) {
     // On macOS, contextmenu is handled via double right-click.
   } else if (now - downTime < delay) {
+    // Quick right-click (no gesture): let the real, trusted contextmenu event
+    // through. On Windows/Linux it fires on mouseup, right after this, so the
+    // native menu opens without us dispatching a (synthetic, menu-less) event.
     allowContextMenuUntil = now + 350;
-    triggerContextMenu(startX, startY);
   } else {
     suppressClickUntil = now + 500;
   }
@@ -556,29 +558,6 @@ function finalizeGesture(options) {
   }, 200);
 }
 
-function triggerContextMenu(x, y) {
-  if (IS_MAC) {
-    logDebug("context_menu_trigger_skipped", { reason: "mac" });
-    return;
-  }
-  const target = document.elementFromPoint(x, y);
-  if (!target) {
-    logDebug("context_menu_trigger_failed", { reason: "no_target" });
-    return;
-  }
-  const event = new MouseEvent("contextmenu", {
-    bubbles: true,
-    cancelable: true,
-    view: window,
-    clientX: x,
-    clientY: y,
-    button: 2,
-    buttons: 2,
-  });
-  const dispatched = target.dispatchEvent(event);
-  logDebug("context_menu_triggered", { dispatched: Boolean(dispatched) });
-}
-
 function activateGesture(x, y, mode) {
   if (gestureActive) {
     return false;
@@ -590,6 +569,13 @@ function activateGesture(x, y, mode) {
     clearTimeout(holdTimer);
     holdTimer = null;
   }
+  // A real gesture happened, so the macOS "double right-click = menu" window
+  // must not carry over to the next right-press (it would open the menu).
+  if (macMenuTimer) {
+    clearTimeout(macMenuTimer);
+    macMenuTimer = null;
+  }
+  macMenuArmed = false;
   directions = [];
   segmentStartX = x;
   segmentStartY = y;
@@ -633,6 +619,7 @@ function processGestureMove(x, y, now) {
       Number(settings.cornerMinLength) || DEFAULT_SETTINGS.cornerMinLength;
     const axisDistance = getAxisDistance(direction, absSegmentX, absSegmentY);
     let committed = false;
+    let advance = false;
     if (!lastDirection) {
       if (axisDistance >= minDistance) {
         directions.push(direction);
@@ -643,6 +630,10 @@ function processGestureMove(x, y, now) {
         directions.push(direction);
         committed = true;
       }
+    } else if (axisDistance >= cornerMinLength) {
+      // Same direction: resample the reference point so the next corner is
+      // detected promptly regardless of how long this straight leg is.
+      advance = true;
     }
     logDebug("eval", {
       direction,
@@ -650,8 +641,9 @@ function processGestureMove(x, y, now) {
       axisDistance: Math.round(axisDistance),
       segmentDistance: Math.round(segmentDistance),
       committed,
+      resample: advance,
     });
-    if (committed) {
+    if (committed || advance) {
       segmentStartX = x;
       segmentStartY = y;
     }

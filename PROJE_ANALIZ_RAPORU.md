@@ -227,5 +227,52 @@ Düşük efor / yüksek etki, hemen yapılabilir:
 
 ---
 
-_Not: Bu rapor yalnızca analiz amaçlıdır; mevcut çalışan koda dokunmadan hazırlanmıştır.
-Önerilerin uygulanması için her madde bağımsız olarak ele alınabilir._
+## 8. Sağ-Tık Modeli ve Köşe Algılama İncelemesi (2026-05-30)
+
+### 8.1 Buton seçimi + Windows/macOS sağ-tık — doğru yaklaşım mı?
+
+**Platform gerçeği:** `contextmenu` olayı Windows/Linux'ta **mouseup**'ta, macOS'ta
+**mousedown**'da tetiklenir. macOS'ta menü, hareketin gesture mi yoksa tık mı
+olduğunu anlamadan önce gelir; bir kez `preventDefault` edilince de aynı olay için
+yeniden açılamaz (sentetik `contextmenu` yerel menüyü açmaz). Bu yüzden gesture'a
+izin vermek için ilk menüyü bloklamak **zorunludur**; menüyü yine sunmanın güvenilir
+yolu da bir **sonraki trusted mousedown-contextmenu**'yü geçirmektir → "çift sağ-tık".
+
+**Değerlendirme:** Buton seçtirmek + macOS'ta çift sağ-tık, sektörde bilinen ve
+büyük ölçüde **kaçınılmaz** bir çözümdür; tasarım sağlam. Ayrıca kritik bir nokta:
+**orta buton** seçildiğinde yerel bağlam menüsü olmadığından tüm Windows/macOS
+ayrımı tamamen ortadan kalkar — yani buton seçici aynı zamanda bir "kaçış kapısı".
+Bu, README'de öneri olarak vurgulanmalı.
+
+**Bulunan ve düzeltilen sağlamlık sorunları:**
+
+- macOS'ta gesture aktive olduğunda "çift tık" 500ms penceresi sıfırlanmıyordu →
+  ardışık hızlı gesture'larda menü yanlışlıkla açılabiliyordu. (Düzeltildi:
+  `activateGesture` içinde `macMenuArmed`/timer reset.)
+- Windows/Linux'ta gereksiz sentetik `triggerContextMenu` çağrısı vardı; gerçek
+  menü zaten `allowContextMenuUntil` ile açılıyor. (Kaldırıldı — özel menülü
+  sitelerde çift tetiklemeyi önler.)
+
+### 8.2 Köşe algılama — "L" doğru çiziliyor mu?
+
+**Bulunan kusur (önemli):** Segment referans noktası (`segmentStart`) yalnızca yön
+değişiminde/ilk commit'te ilerliyordu; düz bacak boyunca **sabit kalıyordu**. Sonuç:
+köşeyi algılamak için ikinci bacağın, birinci bacağın tüm dik bileşenini yenmesi
+gerekiyordu. **Uzun-ince bir "L"** (örn. 300px aşağı + 80px sağa) köşeyi tamamen
+kaçırıp yalnızca `["D"]` üretiyordu (test ile kanıtlandı).
+
+**Düzeltme:** Düz bacak sürerken referans noktası `axisDistance >= cornerMinLength`
+olduğunda yeniden örnekleniyor (resample). Böylece dik artık ~`cornerMinLength` ile
+sınırlı kalıyor ve köşe, bacak uzunluğundan **bağımsız** olarak hızla algılanıyor.
+Hem canlı yol (`content.js processGestureMove`) hem paylaşılan `recognizePoints`
+güncellendi; regresyon testleri eklendi (uzun-ince L, uzun düz çizgi, D R U).
+
+**Varsayılan ayarlar** (minDistance 20, cornerMinLength 18, cornerToleranceDeg 35,
+diagonalBias 1.4): resample düzeltmesiyle birlikte L/U/R/D ve köşeler için artık
+sağlıklı. Köşeler, simplify aşamasında elenen geçici bir çapraz (örn. `D DR R → D R`)
+üzerinden çözülür; bu yapı korunmuştur.
+
+---
+
+_Not: Bölüm 1–7 ilk analiz; Bölüm 8 sonradan yapılan inceleme + uygulanan
+düzeltmelerdir (v1.2.1)._

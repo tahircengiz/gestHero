@@ -176,3 +176,49 @@ test("recognizePoints ignores movement below the min distance", () => {
   );
   assert.deepEqual(tokens, []);
 });
+
+const RECOG_OPTS = {
+  diagonalEnabled: true,
+  diagonalBias: 1.4,
+  cornerToleranceDeg: 35,
+  minDistance: 20,
+  cornerMinLength: 18,
+};
+
+// Build evenly spaced points from `from` to `to` (inclusive of the end).
+function segment(from, to, step) {
+  const dx = Math.sign(to.x - from.x);
+  const dy = Math.sign(to.y - from.y);
+  const out = [];
+  let x = from.x;
+  let y = from.y;
+  while (x !== to.x || y !== to.y) {
+    x += dx * Math.min(step, Math.abs(to.x - x));
+    y += dy * Math.min(step, Math.abs(to.y - y));
+    out.push({ x, y });
+  }
+  return out;
+}
+
+test("recognizePoints detects a tall, thin L corner (regression)", () => {
+  // Long down leg then a short right leg: the corner must still register.
+  const points = [{ x: 0, y: 0 }]
+    .concat(segment({ x: 0, y: 0 }, { x: 0, y: 300 }, 10))
+    .concat(segment({ x: 0, y: 300 }, { x: 80, y: 300 }, 10));
+  assert.deepEqual(core.recognizePoints(points, RECOG_OPTS), ["D", "R"]);
+});
+
+test("recognizePoints keeps a long straight line as a single token", () => {
+  const points = [{ x: 0, y: 0 }].concat(
+    segment({ x: 0, y: 0 }, { x: 400, y: 0 }, 8),
+  );
+  assert.deepEqual(core.recognizePoints(points, RECOG_OPTS), ["R"]);
+});
+
+test("recognizePoints handles a three-leg square bracket (D R U)", () => {
+  const points = [{ x: 0, y: 0 }]
+    .concat(segment({ x: 0, y: 0 }, { x: 0, y: 120 }, 10))
+    .concat(segment({ x: 0, y: 120 }, { x: 120, y: 120 }, 10))
+    .concat(segment({ x: 120, y: 120 }, { x: 120, y: 0 }, 10));
+  assert.deepEqual(core.recognizePoints(points, RECOG_OPTS), ["D", "R", "U"]);
+});
