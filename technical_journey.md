@@ -121,3 +121,9 @@
 - Removed the redundant synthetic `triggerContextMenu` dispatch; the trusted
   contextmenu on Windows/Linux already opens via `allowContextMenuUntil`.
 - Bumped version to 1.2.1.
+- **Dark-mode button fix + theme toggle (v1.2.2)**: button backgrounds were
+  hardcoded light and not overridden in dark mode, so labels became
+  light-on-light. Routed every surface (body, table headers, fields, buttons)
+  through CSS variables and added dark values for all of them. Added a
+  top-right Auto/Light/Dark toggle driven by a `data-theme` attribute, persisted
+  in `storage.local`, with i18n labels (EN/TR, 100 keys each).

@@ -79,6 +79,10 @@
     "message": "Draw the gesture, release to finish (Esc to cancel)"
   },
   "cheatSheetTitle": { "message": "Gestures" },
+  "themeTitle": { "message": "Toggle light/dark theme" },
+  "themeAuto": { "message": "🌗 Auto" },
+  "themeLight": { "message": "☀️ Light" },
+  "themeDark": { "message": "🌙 Dark" },
 
   "statusSaved": { "message": "Saved." },
   "statusSettingsSaved": { "message": "Settings saved." },

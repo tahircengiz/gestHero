@@ -81,6 +81,10 @@
     "message": "Hareketi çiz, bitirmek için bırak (iptal için Esc)"
   },
   "cheatSheetTitle": { "message": "Hareketler" },
+  "themeTitle": { "message": "Açık/koyu tema değiştir" },
+  "themeAuto": { "message": "🌗 Otomatik" },
+  "themeLight": { "message": "☀️ Açık" },
+  "themeDark": { "message": "🌙 Koyu" },
 
   "statusSaved": { "message": "Kaydedildi." },
   "statusSettingsSaved": { "message": "Ayarlar kaydedildi." },

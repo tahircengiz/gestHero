@@ -4,6 +4,21 @@ Bu projedeki dikkate değer değişiklikler bu dosyada tutulur.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 [Semantic Versioning](https://semver.org/) kullanır.
 
+## [1.2.2] - 2026-05-30
+
+### Fixed
+
+- **Koyu mod buton okunabilirliği**: Buton arkaplanları (`button`, `.ghost`,
+  `.danger`) koyu modda override edilmediği için açık zemin + açık yazı oluşup
+  "Draw"/"Sil" gibi etiketler okunamıyordu. Tüm yüzeyler artık CSS değişkenleri
+  üzerinden çalışıyor ve koyu mod token'ları buton renklerini de kapsıyor.
+
+### Added
+
+- **Manuel tema geçişi**: Sağ üstte Otomatik → Açık → Koyu arasında geçiş yapan
+  bir buton. Tercih `storage.local`'da saklanır; "Otomatik" sistem temasını
+  izler. (`data-theme` ile uygulanır, i18n etiketli.)
+
 ## [1.2.1] - 2026-05-30
 
 ### Fixed

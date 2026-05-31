@@ -134,6 +134,15 @@ const searchUrlInput = document.getElementById("search-url");
 const disabledSitesInput = document.getElementById("disabled-sites");
 const exportDebugButton = document.getElementById("export-debug");
 const clearDebugButton = document.getElementById("clear-debug");
+const themeToggle = document.getElementById("theme-toggle");
+
+const THEME_ORDER = ["auto", "light", "dark"];
+const THEME_LABELS = {
+  auto: ["themeAuto", "🌗 Auto"],
+  light: ["themeLight", "☀️ Light"],
+  dark: ["themeDark", "🌙 Dark"],
+};
+let currentTheme = "auto";
 
 // Localised message lookup with a fallback (used before/if a key is missing).
 function t(key, fallback, subs) {
@@ -158,6 +167,31 @@ function applyI18n() {
   if (title) {
     document.title = title;
   }
+}
+
+// Theme: "auto" follows the OS via CSS; "light"/"dark" force it. Persisted in
+// storage.local (a per-device UI preference, separate from synced settings).
+function applyTheme(theme) {
+  currentTheme = THEME_ORDER.includes(theme) ? theme : "auto";
+  document.documentElement.setAttribute("data-theme", currentTheme);
+  const [key, fallback] = THEME_LABELS[currentTheme];
+  themeToggle.textContent = t(key, fallback);
+  themeToggle.title = t("themeTitle", "Toggle light/dark theme");
+}
+
+function cycleTheme() {
+  const idx = THEME_ORDER.indexOf(currentTheme);
+  const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
+  applyTheme(next);
+  chrome.storage.local.set({ theme: next }, () => {
+    void chrome.runtime.lastError;
+  });
+}
+
+function loadTheme() {
+  chrome.storage.local.get({ theme: "auto" }, (data) => {
+    applyTheme(chrome.runtime.lastError ? "auto" : data.theme);
+  });
 }
 
 function setStatus(text, isWarn) {
@@ -529,6 +563,9 @@ importFile.addEventListener("change", () => {
   importSettings(importFile.files[0]);
 });
 
+themeToggle.addEventListener("click", cycleTheme);
+
 applyI18n();
+loadTheme();
 populatePresets();
 loadOptions();

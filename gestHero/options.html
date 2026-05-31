@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en" data-theme="auto">
   <head>
     <meta charset="utf-8" />
     <title data-i18n="optionsTitle">GestHero Options</title>
@@ -14,6 +14,19 @@
         --border: #d9dee7;
         --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
         --radius: 14px;
+        --body-grad: radial-gradient(
+          circle at top,
+          #ffffff,
+          #eef1f5 55%,
+          #e9edf3
+        );
+        --th-bg: #f5f7fb;
+        --field-bg: #ffffff;
+        --btn-bg: #e7ebf3;
+        --btn-fg: var(--text);
+        --btn-ghost-bg: #ffffff;
+        --btn-danger-bg: #fee2e2;
+        --btn-danger-fg: #b91c1c;
       }
       * {
         box-sizing: border-box;
@@ -23,12 +36,7 @@
           "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue", sans-serif;
         margin: 0;
         padding: 24px;
-        background: radial-gradient(
-          circle at top,
-          #ffffff,
-          #eef1f5 55%,
-          #e9edf3
-        );
+        background: var(--body-grad);
         color: var(--text);
       }
       h1 {
@@ -72,7 +80,7 @@
         text-align: left;
       }
       th {
-        background: #f5f7fb;
+        background: var(--th-bg);
         color: var(--muted);
         font-size: 12px;
         text-transform: uppercase;
@@ -86,7 +94,7 @@
         padding: 8px 10px;
         border: 1px solid var(--border);
         border-radius: 8px;
-        background: #fff;
+        background: var(--field-bg);
         color: var(--text);
         font-size: 14px;
       }
@@ -95,7 +103,7 @@
         padding: 8px 10px;
         border: 1px solid var(--border);
         border-radius: 8px;
-        background: #fff;
+        background: var(--field-bg);
         color: var(--text);
         font-size: 14px;
       }
@@ -112,8 +120,8 @@
         padding: 8px 14px;
         border-radius: 9px;
         border: 1px solid transparent;
-        background: #e7ebf3;
-        color: var(--text);
+        background: var(--btn-bg);
+        color: var(--btn-fg);
         font-weight: 600;
         cursor: pointer;
         transition:
@@ -132,15 +140,16 @@
         background: var(--accent-strong);
       }
       button.ghost {
-        background: #fff;
+        background: var(--btn-ghost-bg);
+        color: var(--btn-fg);
         border: 1px solid var(--border);
       }
       button.danger {
-        background: #fee2e2;
-        color: #b91c1c;
+        background: var(--btn-danger-bg);
+        color: var(--btn-danger-fg);
       }
       button.danger:hover {
-        background: #fecaca;
+        filter: brightness(0.95);
       }
       .section {
         background: var(--panel);
@@ -222,8 +231,29 @@
         font-size: 13px;
         pointer-events: none;
       }
+      /* Dark theme tokens. Applied when the user forces dark, or when the
+         theme is auto/unset and the OS prefers dark. All visible surfaces read
+         from these variables so nothing stays light-on-light. */
+      :root[data-theme="dark"] {
+        --bg: #161a20;
+        --panel: #1f2530;
+        --text: #e6eaf0;
+        --muted: #9aa6b6;
+        --accent: #5b93ff;
+        --accent-strong: #79a8ff;
+        --border: #2c3440;
+        --shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+        --body-grad: radial-gradient(circle at top, #1c222b, #14181e 60%);
+        --th-bg: #232a35;
+        --field-bg: #161a20;
+        --btn-bg: #2a313d;
+        --btn-fg: #e6eaf0;
+        --btn-ghost-bg: #20262f;
+        --btn-danger-bg: #4a1f24;
+        --btn-danger-fg: #fca5a5;
+      }
       @media (prefers-color-scheme: dark) {
-        :root {
+        :root:not([data-theme="light"]):not([data-theme="dark"]) {
           --bg: #161a20;
           --panel: #1f2530;
           --text: #e6eaf0;
@@ -232,20 +262,24 @@
           --accent-strong: #79a8ff;
           --border: #2c3440;
           --shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+          --body-grad: radial-gradient(circle at top, #1c222b, #14181e 60%);
+          --th-bg: #232a35;
+          --field-bg: #161a20;
+          --btn-bg: #2a313d;
+          --btn-fg: #e6eaf0;
+          --btn-ghost-bg: #20262f;
+          --btn-danger-bg: #4a1f24;
+          --btn-danger-fg: #fca5a5;
         }
-        body {
-          background: radial-gradient(circle at top, #1c222b, #14181e 60%);
-        }
-        th {
-          background: #232a35;
-        }
-        input[type="text"],
-        input[type="number"],
-        input[type="color"],
-        textarea,
-        select {
-          background: #161a20;
-        }
+      }
+      .header-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+      .theme-toggle {
+        white-space: nowrap;
       }
     </style>
   </head>
@@ -258,7 +292,19 @@
             Use U, D, L, R. Separate steps with a space or comma.
           </p>
         </div>
-        <p class="hint" data-i18n="diagonalsHint">Diagonals: UR, UL, DR, DL</p>
+        <div class="header-right">
+          <button
+            id="theme-toggle"
+            class="ghost theme-toggle"
+            type="button"
+            title="Theme"
+          >
+            Theme
+          </button>
+          <p class="hint" data-i18n="diagonalsHint">
+            Diagonals: UR, UL, DR, DL
+          </p>
+        </div>
       </header>
 
       <div class="section">

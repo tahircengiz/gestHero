@@ -53,7 +53,8 @@ PNG'ler korunur.
 - Renkli trail ve debug log
 - "Draw" ile fareyle cizerek gesture kaydetme; cakisma uyarisi
 - Cheat-sheet overlay (gesture cizilirken hareket listesi)
-- Cok dilli arayuz (EN/TR, tarayici diline gore) ve koyu mod
+- Cok dilli arayuz (EN/TR, tarayici diline gore)
+- Tema: Otomatik / Acik / Koyu (sag ust kosedeki butonla)
 
 ## Kullanim
 
