@@ -565,6 +565,13 @@ importFile.addEventListener("change", () => {
 
 themeToggle.addEventListener("click", cycleTheme);
 
+// Show the loaded build version so it's obvious whether a reload picked up new
+// files (helps when testing locally after a git pull).
+const versionLine = document.getElementById("version-line");
+if (versionLine && chrome.runtime && chrome.runtime.getManifest) {
+  versionLine.textContent = `GestHero v${chrome.runtime.getManifest().version}`;
+}
+
 applyI18n();
 loadTheme();
 populatePresets();
